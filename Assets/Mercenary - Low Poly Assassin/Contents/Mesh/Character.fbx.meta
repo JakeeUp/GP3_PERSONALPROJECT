@@ -1,0 +1,395 @@
+fileFormatVersion: 2
+guid: cb8e5f20fa704c448afceef12b4ca561
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Bandana
+    100002: Bandolier
+    100004: Baseball Hat
+    100006: Belt 1
+    100008: Bone 0
+    100010: Bone 1
+    100012: Bone 2
+    100014: Bone 2_end
+    100016: Cape 1
+    100018: Cape 2
+    100020: Cape 3
+    100022: Cape 4
+    100024: Cape Bones
+    100026: //RootNode
+    100028: Fustanella 1
+    100030: Fustanella 2
+    100032: Ghillie Suit Legs
+    100034: Ghillie Suit Torso
+    100036: Head 1 Male
+    100038: Hood 1
+    100040: Legs Male
+    100042: LowManHead
+    100044: LowManHead_end
+    100046: LowManHips
+    100048: LowManLeftArm
+    100050: LowManLeftFoot
+    100052: LowManLeftForeArm
+    100054: LowManLeftHand
+    100056: LowManLeftHandMiddle1
+    100058: LowManLeftHandMiddle2
+    100060: LowManLeftHandMiddle2_end
+    100062: LowManLeftHandThumb1
+    100064: LowManLeftHandThumb1_end
+    100066: LowManLeftLeg
+    100068: LowManLeftShoulder
+    100070: LowManLeftToeBase
+    100072: LowManLeftToeBase_end
+    100074: LowManLeftUpLeg
+    100076: LowManNeck
+    100078: LowManRightArm
+    100080: LowManRightFoot
+    100082: LowManRightForeArm
+    100084: LowManRightHand
+    100086: LowManRightHandMiddle1
+    100088: LowManRightHandMiddle2
+    100090: LowManRightHandMiddle2_end
+    100092: LowManRightHandThumb1
+    100094: LowManRightHandThumb1_end
+    100096: LowManRightLeg
+    100098: LowManRightShoulder
+    100100: LowManRightToeBase
+    100102: LowManRightToeBase_end
+    100104: LowManRightUpLeg
+    100106: LowManSpine
+    100108: LowManSpine1
+    100110: LowManSpine2
+    100112: Mask 1
+    100114: Mask 2
+    100116: Mask 3
+    100118: Mercenary
+    100120: Scarf 1
+    100122: Shoulder Pads
+    100124: Strap 1
+    100126: Torso Male
+    100128: Torso Male (Armor)
+    100130: Torso Male Jacket
+    100132: Ghillie Suit Head
+    100134: Head 2 Male
+    100136: Legs Male 2
+    100138: Strap 2
+    100140: Head 1 Male Hair 1
+    400000: Bandana
+    400002: Bandolier
+    400004: Baseball Hat
+    400006: Belt 1
+    400008: Bone 0
+    400010: Bone 1
+    400012: Bone 2
+    400014: Bone 2_end
+    400016: Cape 1
+    400018: Cape 2
+    400020: Cape 3
+    400022: Cape 4
+    400024: Cape Bones
+    400026: //RootNode
+    400028: Fustanella 1
+    400030: Fustanella 2
+    400032: Ghillie Suit Legs
+    400034: Ghillie Suit Torso
+    400036: Head 1 Male
+    400038: Hood 1
+    400040: Legs Male
+    400042: LowManHead
+    400044: LowManHead_end
+    400046: LowManHips
+    400048: LowManLeftArm
+    400050: LowManLeftFoot
+    400052: LowManLeftForeArm
+    400054: LowManLeftHand
+    400056: LowManLeftHandMiddle1
+    400058: LowManLeftHandMiddle2
+    400060: LowManLeftHandMiddle2_end
+    400062: LowManLeftHandThumb1
+    400064: LowManLeftHandThumb1_end
+    400066: LowManLeftLeg
+    400068: LowManLeftShoulder
+    400070: LowManLeftToeBase
+    400072: LowManLeftToeBase_end
+    400074: LowManLeftUpLeg
+    400076: LowManNeck
+    400078: LowManRightArm
+    400080: LowManRightFoot
+    400082: LowManRightForeArm
+    400084: LowManRightHand
+    400086: LowManRightHandMiddle1
+    400088: LowManRightHandMiddle2
+    400090: LowManRightHandMiddle2_end
+    400092: LowManRightHandThumb1
+    400094: LowManRightHandThumb1_end
+    400096: LowManRightLeg
+    400098: LowManRightShoulder
+    400100: LowManRightToeBase
+    400102: LowManRightToeBase_end
+    400104: LowManRightUpLeg
+    400106: LowManSpine
+    400108: LowManSpine1
+    400110: LowManSpine2
+    400112: Mask 1
+    400114: Mask 2
+    400116: Mask 3
+    400118: Mercenary
+    400120: Scarf 1
+    400122: Shoulder Pads
+    400124: Strap 1
+    400126: Torso Male
+    400128: Torso Male (Armor)
+    400130: Torso Male Jacket
+    400132: Ghillie Suit Head
+    400134: Head 2 Male
+    400136: Legs Male 2
+    400138: Strap 2
+    400140: Head 1 Male Hair 1
+    2100000: Skin 3
+    2100002: Face
+    2100004: Fabric 1
+    2100006: Boots
+    2100008: Mask
+    2100010: Vest
+    2100012: Mask 2
+    2100014: Shirt 1
+    2100016: Skin 2
+    2100018: Fabric 2
+    2100020: Fabric 3
+    2100022: Shirt 2
+    2100024: Skin 1
+    2100026: Camo 2
+    2100028: Camo 1
+    2300000: Bandolier
+    2300002: Baseball Hat
+    2300004: Belt 1
+    2300006: Mask 1
+    2300008: Mask 2
+    2300010: Mask 3
+    2300012: Scarf 1
+    2300014: Shoulder Pads
+    2300016: Strap 1
+    2300018: Strap 2
+    2300020: Torso Male (Armor)
+    3300000: Bandolier
+    3300002: Baseball Hat
+    3300004: Belt 1
+    3300006: Mask 1
+    3300008: Mask 2
+    3300010: Mask 3
+    3300012: Scarf 1
+    3300014: Shoulder Pads
+    3300016: Strap 1
+    3300018: Strap 2
+    3300020: Torso Male (Armor)
+    4300000: Head 1 Male
+    4300002: Legs Male
+    4300004: Shoulder Pads
+    4300006: Hood 1
+    4300008: Mask 1
+    4300010: Fustanella 1
+    4300012: Belt 1
+    4300014: Torso Male (Armor)
+    4300016: Mask 2
+    4300018: Mask 3
+    4300020: Cape 1
+    4300022: Cape 2
+    4300024: Cape 3
+    4300026: Cape 4
+    4300028: Fustanella 2
+    4300030: Scarf 1
+    4300032: Torso Male
+    4300034: Torso Male Jacket
+    4300036: Ghillie Suit Legs
+    4300038: Ghillie Suit Torso
+    4300040: Bandana
+    4300042: Baseball Hat
+    4300044: Strap 1
+    4300046: Bandolier
+    4300048: Ghillie Suit Head
+    4300050: Head 2 Male
+    4300052: Legs Male 2
+    4300054: Strap 2
+    4300056: Head 1 Male Hair 1
+    9500000: //RootNode
+    13700000: Bandana
+    13700002: Cape 1
+    13700004: Cape 2
+    13700006: Cape 3
+    13700008: Cape 4
+    13700010: Fustanella 1
+    13700012: Fustanella 2
+    13700014: Ghillie Suit Legs
+    13700016: Ghillie Suit Torso
+    13700018: Head 1 Male
+    13700020: Hood 1
+    13700022: Legs Male
+    13700024: Torso Male
+    13700026: Torso Male (Armor)
+    13700028: Torso Male Jacket
+    13700030: Ghillie Suit Head
+    13700032: Head 2 Male
+    13700034: Legs Male 2
+    13700036: Head 1 Male Hair 1
+    2186277476908879412: ImportLogs
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Boots
+    second: {fileID: 2100000, guid: 42db9b960faa4d2418f0a5346c45025a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Camo 1
+    second: {fileID: 2100000, guid: b3c734265a41dda47824f4709f30db92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Camo 2
+    second: {fileID: 2100000, guid: fd010832c7b243b43b15b6b69ed1301e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fabric 1
+    second: {fileID: 2100000, guid: 80c5d96a0e7a1df4cb9cf979cb12f051, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fabric 2
+    second: {fileID: 2100000, guid: 0726f93d5477c7648b843694f9747bde, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fabric 3
+    second: {fileID: 2100000, guid: 31c39e98d2e00b94eaaf6140e446e6bc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Face
+    second: {fileID: 2100000, guid: 3815ee3e2f3c02b449a555745bf615c9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mask
+    second: {fileID: 2100000, guid: add834d99b7936d4796b0fc28444bdd3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mask 2
+    second: {fileID: 2100000, guid: ac57b775acb07ee47a6a7652d0d9a5c6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shirt 1
+    second: {fileID: 2100000, guid: 9680045e77d45bc48aa83780aba87462, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shirt 2
+    second: {fileID: 2100000, guid: a7062ab5be1211547b83ebead825f3ee, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Skin 1
+    second: {fileID: 2100000, guid: dec93cd6813302a4c90b1a1c45c651bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Skin 2
+    second: {fileID: 2100000, guid: e850582d909c3fc48bc552d367ddd3a2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Skin 3
+    second: {fileID: 2100000, guid: 163b2f81d37d5ba4180fce2c23da90fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Vest
+    second: {fileID: 2100000, guid: 6c4f2cf4f86bd2c4aa82ef32478dbf59, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 3
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
