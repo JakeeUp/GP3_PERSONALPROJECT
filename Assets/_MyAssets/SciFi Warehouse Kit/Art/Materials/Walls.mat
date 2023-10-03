@@ -24,17 +24,22 @@ Material:
   m_Shader: {fileID: 4800000, guid: 94cb0d6305cd4a743b1d2ec684e277de, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - DIFF_VERTEX
+  - OPAQUE
+  - SPEC_GOURAUD
+  - _EMISSION
   m_InvalidKeywords:
   - _DIFFMODEL_VERTEX
   - _DRAWDIST_ON
   - _NORMALMAP
   - _SPECMODEL_GOURAUD
-  m_LightmapFlags: 4
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -73,7 +78,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: b23b96e58405f5a47a3552f22652ba7b, type: 3}
+        m_Texture: {fileID: 2800000, guid: c636f3a0f7a205a46adcc6f4da572d39, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetalMap:
