@@ -17,7 +17,19 @@ namespace Player
 		Animator animator;
 
 		public bool isWall;
-		public bool isCrouch;
+		public bool isCrouch
+		{
+			get
+			{
+				return _isCrouch;
+			}
+			set
+			{
+				animator.SetBool("isProne", false);
+				_isCrouch = value;
+			}
+		}
+		bool _isCrouch;
 		public bool isProne;
 
 		private void Start()
