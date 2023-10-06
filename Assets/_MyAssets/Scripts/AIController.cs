@@ -26,7 +26,7 @@ namespace Player
 		public float rotateSpeed = .5f;
 		public float fovRadius = 20;
 		public float fovAngle = 45;
-
+		public float yOffset = 1.0f;  // Adjust this value to raise or lower the Gizmos
 		public float attackDistance = 5;
 		Vector3 lastKnownPosition;
 
@@ -43,7 +43,7 @@ namespace Player
 			currentWaypoint = waypoints[index];
 			mTransform = this.transform;
 
-			controllerLayer = (1 << 9);
+			controllerLayer = (1 << 6);
 		}
 
 		private void Update()
@@ -172,7 +172,7 @@ namespace Player
 				Debug.DrawRay(o, dir * 50, Color.red);
 				if (Physics.Raycast(o, dir, out RaycastHit hit, 100))
 				{
-					Controller targetController = hit.transform.GetComponentInParent<Controller>();
+					Controller targetController = hit.transform.GetComponent<Controller>();
 					if (targetController != null)
 					{
 						currentTarget = targetController;
@@ -196,6 +196,28 @@ namespace Player
 				return false;
 			}
 		}
+		private void OnDrawGizmos()
+		{
+			if (transform == null)
+			{
+				return;
+			}
+
+			
+
+			Vector3 gizmoPosition = transform.position + Vector3.up * yOffset;
+
+			Gizmos.color = Color.yellow;
+			Gizmos.DrawWireSphere(gizmoPosition, fovRadius);  // Draw FOV radius
+
+			Vector3 fovLine1 = Quaternion.AngleAxis(-fovAngle / 2, Vector3.up) * transform.forward * fovRadius;
+			Vector3 fovLine2 = Quaternion.AngleAxis(fovAngle / 2, Vector3.up) * transform.forward * fovRadius;
+
+			Gizmos.color = Color.cyan;
+			Gizmos.DrawLine(gizmoPosition, gizmoPosition + fovLine1);  // Draw one side of FOV
+			Gizmos.DrawLine(gizmoPosition, gizmoPosition + fovLine2);  // Draw other side of FOV
+		}
+
 
 		void HandleDetection()
 		{

@@ -31,7 +31,7 @@ namespace Player
 			cameraManager.wallCameraObject.SetActive(false);
 			cameraManager.mainCameraObject.SetActive(true);
 
-			ignoreForWall = ~(1 << 9);
+			ignoreForWall = ~(1 << 6);
 		}
 
 		private void FixedUpdate()
