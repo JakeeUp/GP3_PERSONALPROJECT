@@ -1,59 +1,226 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
 
-namespace Enemy
+namespace Player
 {
-    public class AIController : MonoBehaviour
-    {
-        NavMeshAgent agent;
-        new Rigidbody rBody;
-        Animator animator;
+	public class AIController : MonoBehaviour
+	{
+		NavMeshAgent agent;
+		new Rigidbody rigidbody;
+		Animator animator;
 
-        public int index;
-        public float waitTimer;
-        public Waypoint[] waypoints;
-        Waypoint currentWaypoint;
-        Transform mTransform;
+		public int index;
+		public Waypoint[] waypoints;
+		Waypoint currentWaypoint;
+		Transform mTransform;
 
-        private void Start()
-        {
-            agent = GetComponent<NavMeshAgent>();
-            animator = GetComponent<Animator>();
-            rBody = GetComponent<Rigidbody>();
-            currentWaypoint = waypoints[index];
-            mTransform = this.transform;
+		public bool isAgressive;
 
-        }
-        private void Update()
-        {
-            float distance = Vector3.Distance(mTransform.position, currentWaypoint.targetPos.position);
+		float waitTimer;
 
-            if(distance < agent.stoppingDistance)
-            {
-                if (agent.hasPath == false)
-                {
-                    agent.SetDestination(currentWaypoint.targetPos.position);
-                }
-                else
-                {
-                    if (waitTimer < currentWaypoint.waitTime);
-                }
-            }
-        }
-    }
+		public float normalSpeed = 2;
+		public float aggressiveSpeed = 4;
+		public float rotateSpeed = .5f;
+		public float fovRadius = 20;
+		public float fovAngle = 45;
 
-    [System.Serializable]
-    public class Waypoint
-    {
-        public Transform targetPos;
-        public Vector3 lookRot;
-        public float waitTime;
-    }
+		public float attackDistance = 5;
+		Vector3 lastKnownPosition;
+
+		Controller currentTarget;
+
+		LayerMask controllerLayer;
+
+
+		private void Start()
+		{
+			agent = GetComponent<NavMeshAgent>();
+			rigidbody = GetComponent<Rigidbody>();
+			animator = GetComponentInChildren<Animator>();
+			currentWaypoint = waypoints[index];
+			mTransform = this.transform;
+
+			controllerLayer = (1 << 9);
+		}
+
+		private void Update()
+		{
+			float delta = Time.deltaTime;
+
+			if (!isAgressive)
+			{
+				agent.speed = normalSpeed;
+				HandleDetection();
+				HandleNormalLogic(delta);
+			}
+			else
+			{
+				agent.speed = aggressiveSpeed;
+				HandleAggressiveLogic(delta);
+			}
+
+			
+		}
+
+		void HandleNormalLogic(float delta)
+		{
+			currentWaypoint = waypoints[index];
+
+			float dis = Vector3.Distance(mTransform.position, currentWaypoint.targetPosition.position);
+
+			if (dis > agent.stoppingDistance)
+			{
+				animator.SetFloat("movement", 1, 0.1f, delta);
+				agent.updateRotation = true;
+
+				if (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete)
+				{
+					agent.SetDestination(currentWaypoint.targetPosition.position);
+				}
+			}
+			else
+			{
+				animator.SetFloat("movement", 0, 0.1f, delta);
+				agent.updateRotation = false;
+
+				Quaternion targetRot = Quaternion.Euler(currentWaypoint.lookEulers);
+				mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
+
+				if (waitTimer < currentWaypoint.waitTime)
+				{
+					waitTimer += delta;
+				}
+				else
+				{
+					waitTimer = 0;
+					index = (index + 1) % waypoints.Length;  // Use modulo to wrap around the index
+
+					// Explicitly set the destination to the next waypoint
+					agent.SetDestination(waypoints[index].targetPosition.position);
+
+					Debug.Log($"Switching to waypoint index: {index}, position: {waypoints[index].targetPosition.position}");
+				}
+			}
+		}
+
+
+
+
+		void HandleAggressiveLogic(float delta)
+		{
+			if (currentTarget != null)
+			{
+				if (!RaycastToTarget(currentTarget))
+				{
+					currentTarget = null;
+				}
+			}
+
+			float dis = Vector3.Distance(lastKnownPosition, mTransform.position);
+			agent.SetDestination(lastKnownPosition);
+			if (currentTarget != null)
+			{
+				if (dis < attackDistance)
+				{
+					agent.isStopped = true;
+
+					Vector3 dir = currentTarget.mTransform.position - mTransform.position;
+					dir.y = 0;
+					Quaternion targetRot = Quaternion.LookRotation(dir);
+					mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
+					agent.updateRotation = false;
+
+				}
+				else
+				{
+					agent.updateRotation = true;
+					agent.isStopped = false;
+					HandleDetection();
+				}
+			}
+			else
+			{
+				agent.updateRotation = true;
+				agent.isStopped = false;
+				HandleDetection();
+			}
+
+			if (agent.desiredVelocity.magnitude > 0)
+			{
+				animator.SetFloat("movement", 1, 0.1f, delta);
+			}
+			else
+			{
+				animator.SetFloat("movement", 0, 0.1f, delta);
+			}
+
+		}
+
+		bool RaycastToTarget(Controller c)
+		{
+			Vector3 dir = c.mTransform.position - mTransform.position;
+			dir.Normalize();
+			float angle = Vector3.Angle(mTransform.forward, dir);
+			if (angle < fovAngle)
+			{
+				Vector3 o = mTransform.position;
+				o.y += 1;
+
+				Debug.DrawRay(o, dir * 50, Color.red);
+				if (Physics.Raycast(o, dir, out RaycastHit hit, 100))
+				{
+					Controller targetController = hit.transform.GetComponentInParent<Controller>();
+					if (targetController != null)
+					{
+						currentTarget = targetController;
+						isAgressive = true;
+						animator.SetBool("isAggressive", true);
+						lastKnownPosition = currentTarget.transform.position;
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		void HandleDetection()
+		{
+			Collider[] colliders = Physics.OverlapSphere(mTransform.position, fovRadius, controllerLayer);
+
+			for (int i = 0; i < colliders.Length; i++)
+			{
+				Controller c = colliders[i].transform.GetComponentInParent<Controller>();
+				if (c != null)
+				{
+					if (RaycastToTarget(c))
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	[System.Serializable]
+	public class Waypoint
+	{
+
+		public Transform targetPosition;
+		public Vector3 lookEulers;
+		public float waitTime;
+	}
 }
-

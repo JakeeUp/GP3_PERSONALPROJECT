@@ -39,7 +39,7 @@ namespace Player
 			animator = GetComponentInChildren<Animator>();
 		}
 
-		public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta)
+		public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
 		{
 			//float dot = Vector3.Dot(moveDirection, Vector3.forward);
 			//Debug.Log(dot);
@@ -61,7 +61,7 @@ namespace Player
 					origin -= mTransform.right * wallCheckDis;
 
 				Debug.DrawRay(origin, -normal, Color.red);
-				if (Physics.Raycast(origin, -normal, out RaycastHit hit, 2))
+				if (Physics.Raycast(origin, -normal, out RaycastHit hit, 2, layerMask))
 				{
 
 				}
@@ -106,7 +106,6 @@ namespace Player
 		{
 			float dot = Vector3.Dot(moveDirection, mTransform.forward);
 			HandleMovementAnimations(moveAmount, delta);
-
 			if (dot > 0)
 			{
 				Debug.DrawRay(mTransform.position, moveDirection);

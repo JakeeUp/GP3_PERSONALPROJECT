@@ -19,6 +19,8 @@ namespace Player
 		float vertical;
 		float moveAmount;
 
+		LayerMask ignoreForWall;
+
 		public enum ExecutionOrder
 		{
 			fixedUpdate, update, lateUpdate
@@ -28,6 +30,8 @@ namespace Player
 		{
 			cameraManager.wallCameraObject.SetActive(false);
 			cameraManager.mainCameraObject.SetActive(true);
+
+			ignoreForWall = ~(1 << 9);
 		}
 
 		private void FixedUpdate()
@@ -46,6 +50,7 @@ namespace Player
 			if (Input.GetKeyDown(KeyCode.C))
 			{
 				controller.isCrouch = !controller.isCrouch;
+
 			}
 
 			moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
@@ -70,13 +75,13 @@ namespace Player
 			origin.y += 1;
 
 			Debug.DrawRay(origin, moveDirection * wallDetectDis);
-			if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDis))
+			if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDis, ignoreForWall))
 			{
 				cameraManager.wallCameraObject.SetActive(true);
 				cameraManager.mainCameraObject.SetActive(false);
 
 				controller.isWall = true;
-				controller.WallMovement(moveDirection, hit.normal, delta);
+				controller.WallMovement(moveDirection, hit.normal, delta, ignoreForWall);
 			}
 			else
 			{
