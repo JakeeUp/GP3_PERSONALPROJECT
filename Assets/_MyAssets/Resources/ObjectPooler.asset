@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3142aedb0c184ec4095348e5d0af9f58, type: 3}
+  m_Name: ObjectPooler
+  m_EditorClassIdentifier: 
+  pools:
+  - poolId: blood
+    prefab: {fileID: 1000012909287652, guid: db8780fb136552c40830aa253c23a132, type: 3}
+    budget: 4
+  - poolId: default
+    prefab: {fileID: 1000010844420130, guid: 4edabb1c0dde62743b137378c7d22980, type: 3}
+    budget: 20

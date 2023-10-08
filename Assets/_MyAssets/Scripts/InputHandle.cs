@@ -2,105 +2,130 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Player
+
+public class InputHandler : MonoBehaviour
 {
-	public class InputHandler : MonoBehaviour
+	public Transform camHolder;
+
+	public ExecutionOrder movementOrder;
+	public Controller controller;
+	public CameraManager cameraManager;
+
+	Vector3 moveDirection;
+	public float wallDetectDis = .5f;
+
+	float horizontal;
+	float vertical;
+	float moveAmount;
+
+	LayerMask ignoreForWall;
+
+
+	public enum ExecutionOrder
 	{
-		public Transform camHolder;
+		fixedUpdate, update, lateUpdate
+	}
 
-		public ExecutionOrder movementOrder;
-		public Controller controller;
-		public CameraManager cameraManager;
+	private void Start()
+	{
+		cameraManager.wallCameraObject.SetActive(false);
+		cameraManager.mainCameraObject.SetActive(true);
 
-		Vector3 moveDirection;
-		public float wallDetectDis = .5f;
+		ignoreForWall = ~(1 << 6);
+	}
 
-		float horizontal;
-		float vertical;
-		float moveAmount;
-
-		LayerMask ignoreForWall;
-
-		public enum ExecutionOrder
+	private void FixedUpdate()
+	{
+		if (movementOrder == ExecutionOrder.fixedUpdate)
 		{
-			fixedUpdate, update, lateUpdate
+			HandleMovement(moveDirection, Time.fixedDeltaTime);
+		}
+	}
+
+	private void Update()
+	{
+		horizontal = Input.GetAxis("Horizontal");
+		vertical = Input.GetAxis("Vertical");
+		controller.isAiming = Input.GetMouseButton(1);
+
+		if (Input.GetKeyDown(KeyCode.C))
+		{
+			controller.isCrouch = !controller.isCrouch;
+
 		}
 
-		private void Start()
-		{
-			cameraManager.wallCameraObject.SetActive(false);
-			cameraManager.mainCameraObject.SetActive(true);
+		moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
 
-			ignoreForWall = ~(1 << 6);
-		}
+		moveDirection = Vector3.forward * vertical;
+		moveDirection += Vector3.right * horizontal;
+		moveDirection.Normalize();
 
-		private void FixedUpdate()
+		float delta = Time.deltaTime;
+
+		if (controller.isAiming)
 		{
-			if (movementOrder == ExecutionOrder.fixedUpdate)
+			controller.isWall = false;
+			controller.isCrouch = false;
+			controller.HandleRotation(moveDirection, delta);
+
+			if (Input.GetMouseButton(0))
 			{
-				HandleMovement(moveDirection, Time.fixedDeltaTime);
+				controller.HandleShooting();
+			}
+
+			if (controller.inventoryManager.currentWeapon.canMoveWithWeapon)
+			{
+				controller.Move(moveDirection, delta);
+				controller.HandleMovementAnimations(moveAmount, delta);
+			}
+			else
+			{
+				controller.HandleMovementAnimations(0, delta);
+				controller.rigidbody.velocity = Vector3.zero;
 			}
 		}
-
-		private void Update()
+		else
 		{
-			horizontal = Input.GetAxis("Horizontal");
-			vertical = Input.GetAxis("Vertical");
-
-			if (Input.GetKeyDown(KeyCode.C))
-			{
-				controller.isCrouch = !controller.isCrouch;
-
-			}
-
-			moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
-
-			moveDirection = Vector3.forward * vertical;
-			moveDirection += Vector3.right * horizontal;
-			moveDirection.Normalize();
-
-			float delta = Time.deltaTime;
-
 			if (movementOrder == ExecutionOrder.update)
 			{
 				HandleMovement(moveDirection, delta);
 			}
-
-			controller.HandleAnimationStates();
 		}
 
-		void HandleMovement(Vector3 moveDirection, float delta)
+		controller.HandleAnimationStates();
+	}
+
+	void HandleMovement(Vector3 moveDirection, float delta)
+	{
+		Vector3 origin = controller.transform.position;
+		origin.y += 1;
+
+		Debug.DrawRay(origin, moveDirection * wallDetectDis);
+		if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDis, ignoreForWall))
 		{
-			Vector3 origin = controller.transform.position;
-			origin.y += 1;
+			cameraManager.wallCameraObject.SetActive(true);
+			cameraManager.mainCameraObject.SetActive(false);
 
-			Debug.DrawRay(origin, moveDirection * wallDetectDis);
-			if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDis, ignoreForWall))
+			controller.isWall = true;
+			controller.WallMovement(moveDirection, hit.normal, delta, ignoreForWall);
+		}
+		else
+		{
+			controller.isWall = false;
+			cameraManager.wallCameraObject.SetActive(false);
+			cameraManager.mainCameraObject.SetActive(true);
+
+			if (controller.isCrouch)
 			{
-				cameraManager.wallCameraObject.SetActive(true);
-				cameraManager.mainCameraObject.SetActive(false);
-
-				controller.isWall = true;
-				controller.WallMovement(moveDirection, hit.normal, delta, ignoreForWall);
+				controller.CrouchMovement(moveDirection, delta, moveAmount);
 			}
 			else
 			{
-				controller.isWall = false;
-				cameraManager.wallCameraObject.SetActive(false);
-				cameraManager.mainCameraObject.SetActive(true);
-
-				if (controller.isCrouch)
-				{
-					controller.CrouchMovement(moveDirection, delta, moveAmount);
-				}
-				else
-				{
-					controller.Move(moveDirection, delta);
-					controller.HandleRotation(moveDirection, delta);
-					controller.HandleMovementAnimations(moveAmount, delta);
-				}
+				controller.Move(moveDirection, delta);
+				controller.HandleRotation(moveDirection, delta);
+				controller.HandleMovementAnimations(moveAmount, delta);
 			}
-
 		}
+
 	}
 }

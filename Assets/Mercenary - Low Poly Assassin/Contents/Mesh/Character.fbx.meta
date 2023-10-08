@@ -778,7 +778,8 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
+    rigImportErrors: "Avatar creation failed:\n\tParent for 'LowManHips' differs
+      from one found in HumanDescription. 'Mercenary' was found instead of 'Char_Root'.\n"
     rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
@@ -1156,11 +1157,6 @@ ModelImporter:
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0.00000008146034, y: 0, z: -0, w: 1}
       scale: {x: 1.0000005, y: 1.0000005, z: 1.0000005}
-    - name: Shoulder Pads
-      parentName: Mercenary
-      position: {x: -0, y: -1.6019512e-10, z: 2.6099098e-17}
-      rotation: {x: 7.1054274e-15, y: 1.1763633e-17, z: 6.887627e-18, w: 1}
-      scale: {x: 1, y: 1, z: 1}
     - name: LowManHips
       parentName: Mercenary
       position: {x: -0, y: 0.92160004, z: 0}
@@ -1251,16 +1247,6 @@ ModelImporter:
       position: {x: -0.0000005983813, y: -0.00000018833865, z: 0.26024285}
       rotation: {x: -0.3663809, y: 0.05575985, z: -0.019344104, w: 0.92859125}
       scale: {x: 0.99999994, y: 1, z: 1}
-    - name: LowManLeftHandThumb1
-      parentName: LowManLeftHand
-      position: {x: 0.0000006058812, y: -0.00000037193297, z: 0.07503351}
-      rotation: {x: 0.27076128, y: -0.08001565, z: 0.43018475, w: 0.8574537}
-      scale: {x: 1, y: 1, z: 0.99999994}
-    - name: LowManLeftHandThumb1_end
-      parentName: LowManLeftHandThumb1
-      position: {x: -0, y: 0.08623937, z: 0}
-      rotation: {x: 0, y: -0, z: -0, w: 1}
-      scale: {x: 1, y: 1, z: 1}
     - name: LowManLeftHandMiddle1
       parentName: LowManLeftHand
       position: {x: -0.022419404, y: -0.06474154, z: 0.06929247}
@@ -1274,6 +1260,31 @@ ModelImporter:
     - name: LowManLeftHandMiddle2_end
       parentName: LowManLeftHandMiddle2
       position: {x: -0, y: 0.09924484, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: LowManLeftHandThumb1
+      parentName: LowManLeftHand
+      position: {x: 0.0000006058812, y: -0.00000037193297, z: 0.07503351}
+      rotation: {x: 0.27076128, y: -0.08001565, z: 0.43018475, w: 0.8574537}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: LowManLeftHandThumb1_end
+      parentName: LowManLeftHandThumb1
+      position: {x: -0, y: 0.08623937, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: LowManNeck
+      parentName: LowManSpine2
+      position: {x: 0.0971186, y: 0, z: 0.110414274}
+      rotation: {x: 0, y: 0.35293898, z: -0, w: 0.93564636}
+      scale: {x: 0.9999999, y: 1, z: 0.9999999}
+    - name: LowManHead
+      parentName: LowManNeck
+      position: {x: 0.00000001351647, y: 0, z: 0.10339248}
+      rotation: {x: 0.7071068, y: -1.2560737e-15, z: 1.2560746e-15, w: 0.7071067}
+      scale: {x: 1, y: 1, z: 1}
+    - name: LowManHead_end
+      parentName: LowManHead
+      position: {x: -0, y: 0.10339248, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: LowManRightShoulder
@@ -1296,16 +1307,6 @@ ModelImporter:
       position: {x: -0.00000022112333, y: 0.00000013165983, z: 0.26024282}
       rotation: {x: 0.3663808, y: 0.05575974, z: 0.019344099, w: 0.92859125}
       scale: {x: 1, y: 1, z: 1}
-    - name: LowManRightHandThumb1
-      parentName: LowManRightHand
-      position: {x: 0.0000004196167, y: 0.00000050522567, z: 0.07503309}
-      rotation: {x: -0.27984247, y: 0.037448026, z: -0.04280359, w: 0.9583599}
-      scale: {x: 1, y: 1, z: 0.99999994}
-    - name: LowManRightHandThumb1_end
-      parentName: LowManRightHandThumb1
-      position: {x: -0, y: 0.08623917, z: 0}
-      rotation: {x: 0, y: -0, z: -0, w: 1}
-      scale: {x: 1, y: 1, z: 1}
     - name: LowManRightHandMiddle1
       parentName: LowManRightHand
       position: {x: -0.0224195, y: 0.06474164, z: 0.06929261}
@@ -1321,20 +1322,20 @@ ModelImporter:
       position: {x: -0, y: 0.09924469, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
-    - name: LowManNeck
-      parentName: LowManSpine2
-      position: {x: 0.0971186, y: 0, z: 0.110414274}
-      rotation: {x: 0, y: 0.35293898, z: -0, w: 0.93564636}
-      scale: {x: 0.9999999, y: 1, z: 0.9999999}
-    - name: LowManHead
-      parentName: LowManNeck
-      position: {x: 0.00000001351647, y: 0, z: 0.10339248}
-      rotation: {x: 0.7071068, y: -1.2560737e-15, z: 1.2560746e-15, w: 0.7071067}
-      scale: {x: 1, y: 1, z: 1}
-    - name: LowManHead_end
-      parentName: LowManHead
-      position: {x: -0, y: 0.10339248, z: 0}
+    - name: LowManRightHandThumb1
+      parentName: LowManRightHand
+      position: {x: 0.0000004196167, y: 0.00000050522567, z: 0.07503309}
+      rotation: {x: -0.27984247, y: 0.037448026, z: -0.04280359, w: 0.9583599}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: LowManRightHandThumb1_end
+      parentName: LowManRightHandThumb1
+      position: {x: -0, y: 0.08623917, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Shoulder Pads
+      parentName: Mercenary
+      position: {x: -0, y: -1.6019512e-10, z: 2.6099098e-17}
+      rotation: {x: 7.1054274e-15, y: 1.1763633e-17, z: 6.887627e-18, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Scarf 1
       parentName: Character(Clone)
