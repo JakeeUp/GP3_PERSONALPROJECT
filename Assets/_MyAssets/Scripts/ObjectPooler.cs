@@ -7,6 +7,8 @@ public class ObjectPooler : ScriptableObject
 {
 	public Pool[] pools;
 	Dictionary<string, Pool> poolDict = new Dictionary<string, Pool>();
+	[System.NonSerialized]
+	GameObject parentObject;
 
 	public void Init()
 	{
@@ -14,6 +16,8 @@ public class ObjectPooler : ScriptableObject
 		{
 			poolDict.Add(p.poolId, p);
 		}
+
+		parentObject = new GameObject("pool parent");
 	}
 
 	public GameObject GetObject(string id)
@@ -23,6 +27,7 @@ public class ObjectPooler : ScriptableObject
 		{
 			GameObject go = value.GetObject();
 			go.SetActive(false);
+			go.transform.parent = parentObject.transform;
 			return go;
 		}
 

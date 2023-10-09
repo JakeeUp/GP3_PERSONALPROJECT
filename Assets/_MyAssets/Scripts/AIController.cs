@@ -2,28 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-
 public class AIController : MonoBehaviour, IShootable
 {
 	NavMeshAgent agent;
 	new Rigidbody rigidbody;
 	Animator animator;
-
+	public float currentHealth { get; private set; }
+	public float maxHealth = 100f;
+	[Header("Waypoint Index")]
+	[Space(5)]
 	public int index;
 	public Waypoint[] waypoints;
 	Waypoint currentWaypoint;
 	Transform mTransform;
 
+	[Header("Bools")]
+	[Space(5)]
 	public bool isAgressive;
 
+	[Header("Wait Timer")]
+	[Space(5)]
 	float waitTimer;
 
+	[Header("Attributes")]
+	[Space(5)]
 	public float normalSpeed = 2;
 	public float aggressiveSpeed = 4;
 	public float rotateSpeed = .5f;
 	public float fovRadius = 20;
 	public float fovAngle = 45;
 
+	[Header("Attack Attributes")]
+	[Space(5)]
+	public float weaponSpread = .3f;
+	public float damageAmount = 10f;
 	public float attackDistance = 5;
 	Vector3 lastKnownPosition;
 
@@ -39,14 +51,17 @@ public class AIController : MonoBehaviour, IShootable
 		animator = GetComponentInChildren<Animator>();
 		currentWaypoint = waypoints[index];
 		mTransform = this.transform;
-
+		currentHealth = maxHealth;
 		controllerLayer = (1 << 6);
 	}
 
 	private void Update()
 	{
 		float delta = Time.deltaTime;
-
+		if(currentHealth <= 0 )
+        {
+			Debug.Log("Enemy Dead");
+        }
 		if (!isAgressive)
 		{
 			agent.speed = normalSpeed;
@@ -60,6 +75,24 @@ public class AIController : MonoBehaviour, IShootable
 		}
 	}
 
+	public float fovHeight = 1.0f;
+
+	void OnDrawGizmos()
+	{
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere(transform.position, fovRadius);
+
+
+		Vector3 startLinePosition = transform.position + Vector3.up * fovHeight;
+
+
+		Vector3 fovLine1 = Quaternion.AngleAxis(-fovAngle * 0.5f, Vector3.up) * transform.forward * fovRadius;
+		Vector3 fovLine2 = Quaternion.AngleAxis(fovAngle * 0.5f, Vector3.up) * transform.forward * fovRadius;
+
+		Gizmos.color = Color.red;
+		Gizmos.DrawLine(startLinePosition, startLinePosition + fovLine1);
+		Gizmos.DrawLine(startLinePosition, startLinePosition + fovLine2);
+	}
 	void HandleNormalLogic(float delta)
 	{
 		currentWaypoint = waypoints[index];
@@ -97,6 +130,9 @@ public class AIController : MonoBehaviour, IShootable
 		}
 	}
 
+	public float fireRate = .1f;
+	float currentFire;
+
 	void HandleAggressiveLogic(float delta)
 	{
 		if (currentTarget != null)
@@ -120,6 +156,16 @@ public class AIController : MonoBehaviour, IShootable
 				Quaternion targetRot = Quaternion.LookRotation(dir);
 				mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
 				agent.updateRotation = false;
+
+				if (currentFire < 0)
+				{
+					currentFire = fireRate;
+					HandleShooting();
+				}
+				else
+				{
+					currentFire -= delta;
+				}
 
 			}
 			else
@@ -146,6 +192,27 @@ public class AIController : MonoBehaviour, IShootable
 		}
 
 	}
+
+	public ParticleSystem muzzleFire;
+	
+	void HandleShooting()
+	{
+		muzzleFire.Play();
+		RaycastHit hit;
+
+        if (Physics.Raycast(mTransform.position, mTransform.forward, out hit, attackDistance))
+        {
+            Controller targetController = hit.transform.GetComponentInParent<Controller>();
+            if (targetController != null)
+            {
+				targetController.OnHit(damageAmount);
+            }
+        }
+
+        GameReferences.RaycastShoot(mTransform, weaponSpread);
+		
+	}
+
 
 	bool RaycastToTarget(Controller c)
 	{
@@ -189,8 +256,6 @@ public class AIController : MonoBehaviour, IShootable
 	{
 		Collider[] colliders = Physics.OverlapSphere(mTransform.position, fovRadius, controllerLayer);
 
-		
-
 		for (int i = 0; i < colliders.Length; i++)
 		{
 			Controller c = colliders[i].transform.GetComponentInParent<Controller>();
@@ -204,29 +269,15 @@ public class AIController : MonoBehaviour, IShootable
 		}
 	}
 
-	public float fovHeight = 1.0f; 
-
-	void OnDrawGizmos()
+	public void OnHit(float dmgAmt)
 	{
-		Gizmos.color = Color.yellow;
-		Gizmos.DrawWireSphere(transform.position, fovRadius);
+		//damageAmount = dmgAmt;
+		//currentHealth -= damage;
+	
+		// Ensure health doesn't go below zero
+		currentHealth = Mathf.Max(currentHealth, 0);
 
-		
-		Vector3 startLinePosition = transform.position + Vector3.up * fovHeight;
-
-		
-		Vector3 fovLine1 = Quaternion.AngleAxis(-fovAngle * 0.5f, Vector3.up) * transform.forward * fovRadius;
-		Vector3 fovLine2 = Quaternion.AngleAxis(fovAngle * 0.5f, Vector3.up) * transform.forward * fovRadius;
-
-		Gizmos.color = Color.red;
-		Gizmos.DrawLine(startLinePosition, startLinePosition + fovLine1);
-		Gizmos.DrawLine(startLinePosition, startLinePosition + fovLine2);
-	}
-
-
-	public void OnHit()
-	{
-
+		// Handle other consequences of being hit
 	}
 
 	public string hitFx = "blood";
@@ -245,3 +296,5 @@ public class Waypoint
 	public Vector3 lookEulers;
 	public float waitTime;
 }
+
+

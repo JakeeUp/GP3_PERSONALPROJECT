@@ -1,25 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
-
-public class Controller : MonoBehaviour
+public class Controller : MonoBehaviour, IShootable
 {
 
+	public float currentHealth { get; private set; }
 	public new Rigidbody rigidbody;
+	[Header("Attributes")]
+	[Space(5)]
+	public float maxHealth = 100f;
+	[Header("Movement")]
+	[Space(5)]
 	public float moveSpeed = .4f;
 	public float proneSpeed = .4f;
 	public float wallSpeed = .4f;
 	public float rotateSpeed = .2f;
 	public float wallCheckDis = .2f;
+
+	[Header("Attacking")]
+	[Space(5)]
 	public float aimSpeed = 1;
 	[HideInInspector]
 	public Transform mTransform;
 	[HideInInspector]
 	public InventoryManager inventoryManager;
 	Animator animator;
+	public float dmgNumber;
 
+	[Header("Bools")]
+	[Space(5)]
 	public bool isWall;
 	public bool isAiming;
 	public bool isCrouch
@@ -43,8 +55,24 @@ public class Controller : MonoBehaviour
 		rigidbody = GetComponent<Rigidbody>();
 		animator = GetComponentInChildren<Animator>();
 		inventoryManager = GetComponentInParent<InventoryManager>();
+		currentHealth += maxHealth;
 	}
 
+	public void ApplyDamage(float damage)
+	{
+		//currentHealth -= damage;
+		//currentHealth = Mathf.Max(currentHealth, 0);
+
+		if (currentHealth <= 0)
+		{
+			Debug.Log("DEAD");
+			//HandleDeath();
+		}
+	}
+	void HandleDeath()
+	{
+		
+	}
 	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
 	{
 		//float dot = Vector3.Dot(moveDirection, Vector3.forward);
@@ -181,35 +209,26 @@ public class Controller : MonoBehaviour
 			lastShot = Time.realtimeSinceStartup;
 			inventoryManager.currentWeapon.muzzle.Play();
 
-			RaycastHit hit;
-			Vector3 origin = Random.insideUnitCircle * inventoryManager.currentWeapon.weaponSpread;
-			origin = mTransform.TransformPoint(origin);
-			origin.y += 1.3f;
-			//origin += randomPosition;
-			Debug.DrawRay(origin, mTransform.forward * 100, Color.white);
+			GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeapon.weaponSpread);
 
-			if (Physics.Raycast(origin, mTransform.forward, out hit, 100))
-			{
-				IShootable shootable = hit.transform.GetComponent<IShootable>();
-				if (shootable != null)
-				{
-					Debug.Log("Hit");
-					GameObject fx = GameReferences.objectPooler.GetObject(shootable.GetHitFx());
-					fx.transform.position = hit.point;
-					fx.transform.rotation = Quaternion.LookRotation(hit.normal);
-					fx.SetActive(true);
-				}
-				else
-				{
-					Debug.Log("Hit Other");
-					GameObject fx = GameReferences.objectPooler.GetObject("default");
-					fx.transform.position = hit.point;
-					fx.transform.rotation = Quaternion.LookRotation(hit.normal);
-					fx.SetActive(true);
-				}
-			}
 		}
 	}
+	AIController enemy;
+	public void OnHit(float damage)
+	{
+		
+		currentHealth -= damage; 
 
+		// Ensure health doesn't go below zero
+		currentHealth = Mathf.Max(currentHealth, 0);
+
+		// Handle other consequences of being hit
+	}
+
+	public string hitFx = "blood";
+    public string GetHitFx()
+    {
+		return hitFx;
+    }
 }
 
