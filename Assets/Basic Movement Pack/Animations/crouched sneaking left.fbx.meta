@@ -33,13 +33,13 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: wall_crouch_right
+      name: wall_crouch_left
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
       lastFrame: 76
       wrapMode: 0
-      orientationOffsetY: 0
+      orientationOffsetY: 180
       level: 0
       cycleOffset: 0
       loop: 0

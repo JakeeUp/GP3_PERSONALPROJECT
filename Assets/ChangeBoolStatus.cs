@@ -20,13 +20,13 @@ public class ChangeBoolStatus : StateMachineBehaviour
         if (controller == null)
             controller = animator.GetComponentInParent<Controller>();
 
-        controller.StartCoroutine(DelayedOpen(delay, animator));
+        controller.StartCoroutine(DelayedOpen(delay, animator, status));
     }
 
-    IEnumerator DelayedOpen(float d, Animator animator)
+    IEnumerator DelayedOpen(float d, Animator animator, bool targetStatus)
     {
         yield return new WaitForSeconds(d);
-        animator.SetBool(boolName, status);
+        animator.SetBool(boolName, targetStatus);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -39,7 +39,14 @@ public class ChangeBoolStatus : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (resetOnExit)
+        {
             animator.SetBool(boolName, !status);
+            //if (controller == null)
+            //    controller = animator.GetComponentInParent<Controller>();
+
+            //controller.StartCoroutine(DelayedOpen(delay, animator, !status));
+        }
+           // animator.SetBool(boolName, !status);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

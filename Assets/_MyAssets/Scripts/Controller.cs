@@ -9,6 +9,8 @@ public class Controller : MonoBehaviour, IShootable
 
 	public float currentHealth { get; private set; }
 	public new Rigidbody rigidbody;
+	public SkinnedMeshRenderer meshRenderer;
+
 	[Header("Attributes")]
 	[Space(5)]
 	public float maxHealth = 100f;
@@ -18,6 +20,7 @@ public class Controller : MonoBehaviour, IShootable
 	public float proneSpeed = .4f;
 	public float wallSpeed = .4f;
 	public float rotateSpeed = .2f;
+	public float fpsRotateSpeed = .2f;
 	public float wallCheckDis = .2f;
 
 	[Header("Attacking")]
@@ -34,6 +37,7 @@ public class Controller : MonoBehaviour, IShootable
 	[Space(5)]
 	public bool isWall;
 	public bool isAiming;
+	public bool isFreeLook;
 	public bool isCrouch
 	{
 		get
@@ -55,6 +59,7 @@ public class Controller : MonoBehaviour, IShootable
 		rigidbody = GetComponent<Rigidbody>();
 		animator = GetComponentInChildren<Animator>();
 		inventoryManager = GetComponentInParent<InventoryManager>();
+		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 		currentHealth += maxHealth;
 	}
 
@@ -75,9 +80,16 @@ public class Controller : MonoBehaviour, IShootable
 	}
 	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
 	{
-		//float dot = Vector3.Dot(moveDirection, Vector3.forward);
+		float dot = Vector3.Dot(moveDirection, Vector3.forward);
 		//Debug.Log(dot);
 		//moveDirection *= (dot < -0.8f) ? -1 : 1;
+		if(dot < 0)
+        {
+			moveDirection.x *= -1;
+        }
+		HandleRotation(normal, delta);
+
+		//moveDirection = mTransform.InverseTransformDirection(moveDirection);//mTransform.right * horizontal;
 
 		Vector3 projectVel = Vector3.ProjectOnPlane(moveDirection, normal);
 		Debug.DrawRay(mTransform.position, projectVel, Color.blue);
@@ -112,7 +124,6 @@ public class Controller : MonoBehaviour, IShootable
 		}
 
 		rigidbody.velocity = projectVel * wallSpeed;
-		HandleRotation(-normal, delta);
 
 		float m = 0;
 
@@ -133,7 +144,12 @@ public class Controller : MonoBehaviour, IShootable
 
 	public void Move(Vector3 moveDirection, float delta)
 	{
-		float speed = moveSpeed;
+		if (animator.GetBool("canRotate"))
+		{
+			moveDirection = Vector3.zero;
+		}
+
+			float speed = moveSpeed;
 		if (isAiming)
 			speed = aimSpeed;
 
@@ -152,7 +168,7 @@ public class Controller : MonoBehaviour, IShootable
 
 			if (moveAmount > 0)
 			{
-				animator.SetBool("isProne", true);
+				isProne = true;
 				HandleRotation(moveDirection, delta);
 				animator.SetBool("canRotate", false);
 			}
@@ -161,10 +177,11 @@ public class Controller : MonoBehaviour, IShootable
 		{
 			if (moveAmount > 0)
 			{
-				animator.SetBool("isProne", false);
+				isProne = false;
 
 				if (animator.GetBool("canRotate"))
 				{
+					rigidbody.velocity = Vector3.zero;
 					HandleRotation(moveDirection, delta);
 				}
 			}
@@ -179,11 +196,18 @@ public class Controller : MonoBehaviour, IShootable
 		mTransform.rotation = Quaternion.Slerp(mTransform.rotation, lookRotation, delta / rotateSpeed);
 	}
 
+	public void FPSRotate(float horizontal, float delta)
+	{
+		Vector3 targetEuler = mTransform.eulerAngles;
+		targetEuler.y += horizontal * delta / fpsRotateSpeed;
+		mTransform.eulerAngles = targetEuler;
+	}
 	public void HandleAnimationStates()
 	{
 		animator.SetBool("isCrouch", isCrouch);
 		animator.SetBool("isWall", isWall);
 		animator.SetBool("isAiming", isAiming);
+		animator.SetBool("isProne", isProne);
 		inventoryManager.currentWeapon.model.SetActive(isAiming);
 	}
 

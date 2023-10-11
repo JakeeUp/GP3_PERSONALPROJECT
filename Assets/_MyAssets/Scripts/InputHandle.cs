@@ -18,7 +18,10 @@ public class InputHandler : MonoBehaviour
 	float vertical;
 	float moveAmount;
 
+	bool freeLook;
+
 	LayerMask ignoreForWall;
+
 
 
 	public enum ExecutionOrder
@@ -30,7 +33,8 @@ public class InputHandler : MonoBehaviour
 	{
 		cameraManager.wallCameraObject.SetActive(false);
 		cameraManager.mainCameraObject.SetActive(true);
-
+		cameraManager.fpsCameraObject.SetActive(false);
+		cameraManager.mainCamera.cullingMask = ~0;
 		ignoreForWall = ~(1 << 6);
 	}
 
@@ -47,56 +51,90 @@ public class InputHandler : MonoBehaviour
 		horizontal = Input.GetAxis("Horizontal");
 		vertical = Input.GetAxis("Vertical");
 		controller.isAiming = Input.GetMouseButton(1);
+		freeLook = Input.GetKey(KeyCode.F);
+		
+		if(freeLook)
+        {
+			
+			if(controller.isFreeLook == false)
+            {
+				controller.isFreeLook = true;
+				controller.isAiming = false;
+				controller.isProne = false;
+				cameraManager.fpsCameraObject.SetActive(true);
+				controller.rigidbody.velocity = Vector3.zero;
+				cameraManager.mainCamera.cullingMask = ~(1 << 7);
 
-		if (Input.GetKeyDown(KeyCode.C))
-		{
-			controller.isCrouch = !controller.isCrouch;
+			}
 
 		}
-
+		else
+        {
+			if(controller.isFreeLook)
+            {
+				controller.isFreeLook = false;
+				cameraManager.fpsCameraObject.SetActive(false);
+				cameraManager.mainCamera.cullingMask = ~0;
+			}
+		}
 		moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
 
 		moveDirection = Vector3.forward * vertical;
 		moveDirection += Vector3.right * horizontal;
 		moveDirection.Normalize();
 
+		if (Input.GetKeyDown(KeyCode.C))
+		{
+			controller.isCrouch = !controller.isCrouch;
+			moveDirection = Vector3.zero;
+
+		}
+
 		float delta = Time.deltaTime;
 
-		if (controller.isAiming)
+		if (controller.isFreeLook)
 		{
-			controller.isWall = false;
-			controller.isCrouch = false;
-			controller.HandleRotation(moveDirection, delta);
-
-			if (Input.GetMouseButton(0))
-			{
-				controller.HandleShooting();
-			}
-
-			if (controller.inventoryManager.currentWeapon.canMoveWithWeapon)
-			{
-				controller.Move(moveDirection, delta);
-				controller.HandleMovementAnimations(moveAmount, delta);
-			}
-			else
-			{
-				controller.HandleMovementAnimations(0, delta);
-				controller.rigidbody.velocity = Vector3.zero;
-			}
+			controller.FPSRotate(horizontal, delta);
 		}
 		else
 		{
-			if (movementOrder == ExecutionOrder.update)
+			
+			if (controller.isAiming)
 			{
-				HandleMovement(moveDirection, delta);
+				controller.isWall = false;
+				controller.isCrouch = false;
+				controller.HandleRotation(moveDirection, delta);
+
+				if (Input.GetMouseButton(0))
+				{
+					controller.HandleShooting();
+				}
+
+				if (controller.inventoryManager.currentWeapon.canMoveWithWeapon)
+				{
+					controller.Move(moveDirection, delta);
+					controller.HandleMovementAnimations(moveAmount, delta);
+				}
+				else
+				{
+					controller.HandleMovementAnimations(0, delta);
+					controller.rigidbody.velocity = Vector3.zero;
+				}
+			}
+			else
+			{
+				if (movementOrder == ExecutionOrder.update)
+				{
+					HandleMovement(moveDirection, delta);
+				}
 			}
 		}
-
 		controller.HandleAnimationStates();
 	}
 
 	void HandleMovement(Vector3 moveDirection, float delta)
 	{
+		
 		Vector3 origin = controller.transform.position;
 		origin.y += 1;
 
@@ -105,7 +143,7 @@ public class InputHandler : MonoBehaviour
 		{
 			cameraManager.wallCameraObject.SetActive(true);
 			cameraManager.mainCameraObject.SetActive(false);
-
+			controller.isProne = false;
 			controller.isWall = true;
 			controller.WallMovement(moveDirection, hit.normal, delta, ignoreForWall);
 		}
