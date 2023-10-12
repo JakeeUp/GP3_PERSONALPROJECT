@@ -9,6 +9,9 @@ public class Controller : MonoBehaviour, IShootable
 
 	public float currentHealth { get; private set; }
 	public new Rigidbody rigidbody;
+	public float wallCamXPos = 1;
+	public Transform wallCamParent;
+	public Vector3 startWallCamPos;
 	public SkinnedMeshRenderer meshRenderer;
 
 	[Header("Attributes")]
@@ -59,8 +62,9 @@ public class Controller : MonoBehaviour, IShootable
 		rigidbody = GetComponent<Rigidbody>();
 		animator = GetComponentInChildren<Animator>();
 		inventoryManager = GetComponentInParent<InventoryManager>();
-		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 		currentHealth += maxHealth;
+		startWallCamPos = wallCamParent.localPosition;
+		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 	}
 
 	public void ApplyDamage(float damage)
@@ -81,6 +85,7 @@ public class Controller : MonoBehaviour, IShootable
 	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
 	{
 		float dot = Vector3.Dot(moveDirection, Vector3.forward);
+		Vector3 wallCamTargetPos = startWallCamPos;
 		//Debug.Log(dot);
 		//moveDirection *= (dot < -0.8f) ? -1 : 1;
 		if(dot < 0)
@@ -114,6 +119,7 @@ public class Controller : MonoBehaviour, IShootable
 			else
 			{
 				projectVel = Vector3.zero;
+				wallCamTargetPos.x = wallCamXPos * ((relativeDir.x < 0)?-1:1);
 				relativeDir.x = 0;
 			}
 		}
@@ -139,6 +145,8 @@ public class Controller : MonoBehaviour, IShootable
 		}
 
 		animator.SetFloat("movement", m, 0.1f, delta);
+
+		wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPos, delta / 0.2f);
 
 	}
 
