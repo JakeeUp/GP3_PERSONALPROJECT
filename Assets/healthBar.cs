@@ -45,6 +45,6 @@ public class healthBar : MonoBehaviour
 
     private void takeDamage(float damage)
     {
-        controller.ApplyDamage(damage);
+        controller.OnHit(damage);
     }
 }

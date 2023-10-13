@@ -6,6 +6,7 @@ public static class GameReferences
 {
    
 	static ObjectPooler _objectPooler;
+    public static float damage;
 	public static ObjectPooler objectPooler
 	{
 		get
@@ -43,7 +44,7 @@ public static class GameReferences
                     fx.SetActive(true);
 
                     // Only apply damage if the particle effect is successfully triggered
-                    shootable.OnHit(5f);
+                    shootable.OnHit(damage);
                     //shootable.OnHit(10f);// Replace 10f with the actual damage value
                 }
             }

@@ -55,6 +55,8 @@ public class Controller : MonoBehaviour, IShootable
 	}
 	bool _isCrouch;
 	public bool isProne;
+	public float enemyDamage;
+	public AIController enemy;
 
 	private void Start()
 	{
@@ -65,19 +67,26 @@ public class Controller : MonoBehaviour, IShootable
 		currentHealth += maxHealth;
 		startWallCamPos = wallCamParent.localPosition;
 		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+		enemy = FindObjectOfType<AIController>();
+		
+		
 	}
+    private void Update()
+    {
+		
+		//ApplyDamage(enemyDamage);
+    }
+ //   public void ApplyDamage(float damage)
+	//{
+	//	//currentHealth -= damage;
+	//	//currentHealth = Mathf.Max(currentHealth, 0);
 
-	public void ApplyDamage(float damage)
-	{
-		//currentHealth -= damage;
-		//currentHealth = Mathf.Max(currentHealth, 0);
-
-		if (currentHealth <= 0)
-		{
-			Debug.Log("DEAD");
-			//HandleDeath();
-		}
-	}
+	//	if (currentHealth <= 0)
+	//	{
+	//		Debug.Log("DEAD");
+	//		//HandleDeath();
+	//	}
+	//}
 	void HandleDeath()
 	{
 		
@@ -245,18 +254,29 @@ public class Controller : MonoBehaviour, IShootable
 
 		}
 	}
-	AIController enemy;
+
 	public void OnHit(float damage)
 	{
-		
-		currentHealth -= damage; 
-
+		if (enemy != null)
+		{
+			currentHealth -= enemy.DamageAmount;  // Accessing via property
+			Debug.Log($"Player is taking: -{enemy.DamageAmount} HP");
+		}
+		else
+		{
+			Debug.LogError("AIController is not assigned!");
+		}
 		// Ensure health doesn't go below zero
 		currentHealth = Mathf.Max(currentHealth, 0);
-
 		// Handle other consequences of being hit
 	}
-
+	public void ShowHealthWhenDeadTest()
+    {
+		if(currentHealth <= 0)
+        {
+			Debug.Log("Player Dead");
+        }
+    }
 	public string hitFx = "blood";
     public string GetHitFx()
     {

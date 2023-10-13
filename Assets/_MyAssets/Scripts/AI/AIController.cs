@@ -19,6 +19,10 @@ public class AIController : MonoBehaviour, IShootable
 	[Header("Bools")]
 	[Space(5)]
 	public bool isAgressive;
+	public bool isCaution;
+	public float cautionTimerNormal = .7f;
+	public float cautionTimerAgrro = .4f;
+	float cautionTimer;
 
 	[Header("Wait Timer")]
 	[Space(5)]
@@ -35,14 +39,23 @@ public class AIController : MonoBehaviour, IShootable
 	[Header("Attack Attributes")]
 	[Space(5)]
 	public float weaponSpread = .3f;
-	public float damageAmount = 10f;
+	[SerializeField]
+	private float damageAmount;
+	public int magBullets = 30;
+	int timesShot;
+
+	public float DamageAmount
+	{
+		get { return damageAmount; }
+		set { damageAmount = value; }
+	}
+
 	public float attackDistance = 5;
 	Vector3 lastKnownPosition;
 
 	Controller currentTarget;
 
 	LayerMask controllerLayer;
-
 
 	private void Start()
 	{
@@ -53,6 +66,10 @@ public class AIController : MonoBehaviour, IShootable
 		mTransform = this.transform;
 		currentHealth = maxHealth;
 		controllerLayer = (1 << 6);
+		animator.applyRootMotion = false;
+
+		GameReferences.damage = damageAmount;
+
 	}
 
 	private void Update()
@@ -62,6 +79,9 @@ public class AIController : MonoBehaviour, IShootable
         {
 			Debug.Log("Enemy Dead");
         }
+
+
+
 		if (!isAgressive)
 		{
 			agent.speed = normalSpeed;
@@ -70,8 +90,26 @@ public class AIController : MonoBehaviour, IShootable
 		}
 		else
 		{
-			agent.speed = aggressiveSpeed;
-			HandleAggressiveLogic(delta);
+			if(isCaution)
+            {
+				if(cautionTimer < 0)
+                {
+					isCaution = false;
+					animator.SetBool("isCaution", false);
+					agent.isStopped = false;
+				}
+				else
+                {
+					HandleLookAtTarget(delta);
+					agent.isStopped = true;
+					cautionTimer -= delta;
+                }
+            }
+            {
+				agent.speed = aggressiveSpeed;
+				HandleAggressiveLogic(delta);
+			}
+			
 		}
 	}
 
@@ -151,11 +189,7 @@ public class AIController : MonoBehaviour, IShootable
 			{
 				agent.isStopped = true;
 
-				Vector3 dir = currentTarget.mTransform.position - mTransform.position;
-				dir.y = 0;
-				Quaternion targetRot = Quaternion.LookRotation(dir);
-				mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
-				agent.updateRotation = false;
+				HandleLookAtTarget(delta);
 
 				if (currentFire < 0)
 				{
@@ -193,10 +227,23 @@ public class AIController : MonoBehaviour, IShootable
 
 	}
 
+	void HandleLookAtTarget(float delta)
+    {
+		Vector3 dir = currentTarget.mTransform.position - mTransform.position;
+		dir.y = 0;
+		Quaternion targetRot = Quaternion.LookRotation(dir);
+		mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
+		agent.updateRotation = false;
+	}
 	public ParticleSystem muzzleFire;
 	
 	void HandleShooting()
 	{
+		timesShot++;
+		if (timesShot > magBullets)
+		{
+			timesShot = 0;
+		}
 		muzzleFire.Play();
 		RaycastHit hit;
 
@@ -230,8 +277,17 @@ public class AIController : MonoBehaviour, IShootable
 				Controller targetController = hit.transform.GetComponentInParent<Controller>();
 				if (targetController != null)
 				{
+					if(!isAgressive || currentTarget == null)
+                    {
+						cautionTimer = cautionTimerNormal;
+						isCaution = true;
+						isAgressive = true;
+						animator.SetBool("isCaution", true);
+						animator.CrossFade("cautionAnim", .2f);
+					}
 					currentTarget = targetController;
-					isAgressive = true;
+
+
 					animator.SetBool("isAggressive", true);
 					lastKnownPosition = currentTarget.transform.position;
 					return true;
