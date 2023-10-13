@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+
+
 public class AIController : MonoBehaviour, IShootable
 {
 	NavMeshAgent agent;
@@ -20,13 +22,12 @@ public class AIController : MonoBehaviour, IShootable
 	[Space(5)]
 	public bool isAgressive;
 	public bool isCaution;
-	public float cautionTimerNormal = .7f;
-	public float cautionTimerAgrro = .4f;
-	float cautionTimer;
 
 	[Header("Wait Timer")]
 	[Space(5)]
 	float waitTimer;
+	float cautionTimer;
+	public float cautionTimerNormal = .7f;
 
 	[Header("Attributes")]
 	[Space(5)]
@@ -41,7 +42,8 @@ public class AIController : MonoBehaviour, IShootable
 	public float weaponSpread = .3f;
 	[SerializeField]
 	private float damageAmount;
-	public int magBullets = 30;
+	public int magBullets = 40;
+	int bulletsToFire;
 	int timesShot;
 
 	public float DamageAmount
@@ -52,6 +54,7 @@ public class AIController : MonoBehaviour, IShootable
 
 	public float attackDistance = 5;
 	Vector3 lastKnownPosition;
+	Vector3 lastKnownDirection;
 
 	Controller currentTarget;
 
@@ -71,17 +74,24 @@ public class AIController : MonoBehaviour, IShootable
 		GameReferences.damage = damageAmount;
 
 	}
-
 	private void Update()
 	{
 		float delta = Time.deltaTime;
-		if(currentHealth <= 0 )
-        {
+		if (currentHealth <= 0)
+		{
 			Debug.Log("Enemy Dead");
-        }
+		}
 
 
-
+		if (animator.GetBool("isInteracting"))
+		{
+			agent.isStopped = true;
+			if (animator.GetBool("canRotate"))
+			{
+				HandleLookAtTarget(delta);
+			}
+			return;
+		}
 		if (!isAgressive)
 		{
 			agent.speed = normalSpeed;
@@ -90,26 +100,26 @@ public class AIController : MonoBehaviour, IShootable
 		}
 		else
 		{
-			if(isCaution)
-            {
-				if(cautionTimer < 0)
-                {
+			if (isCaution)
+			{
+				if (cautionTimer < 0)
+				{
 					isCaution = false;
 					animator.SetBool("isCaution", false);
 					agent.isStopped = false;
 				}
 				else
-                {
+				{
 					HandleLookAtTarget(delta);
 					agent.isStopped = true;
 					cautionTimer -= delta;
-                }
-            }
-            {
+				}
+			}
+			{
 				agent.speed = aggressiveSpeed;
 				HandleAggressiveLogic(delta);
 			}
-			
+
 		}
 	}
 
@@ -170,6 +180,7 @@ public class AIController : MonoBehaviour, IShootable
 
 	public float fireRate = .1f;
 	float currentFire;
+	bool initRange;
 
 	void HandleAggressiveLogic(float delta)
 	{
@@ -177,16 +188,29 @@ public class AIController : MonoBehaviour, IShootable
 		{
 			if (!RaycastToTarget(currentTarget))
 			{
+				lastKnownDirection = (currentTarget.mTransform.position - lastKnownPosition).normalized;
 				currentTarget = null;
 			}
 		}
 
+		bool inRange = false;
+
 		float dis = Vector3.Distance(lastKnownPosition, mTransform.position);
 		agent.SetDestination(lastKnownPosition);
+		#region Handle Raycast to target
 		if (currentTarget != null)
 		{
 			if (dis < attackDistance)
 			{
+				inRange = true;
+
+				if (!initRange)
+				{
+					AssignRandomBulletsToFire();
+					PlayCautionState(cautionTimerNormal, delta, false);
+					currentFire = fireRate;
+					initRange = true;
+				}
 				agent.isStopped = true;
 
 				HandleLookAtTarget(delta);
@@ -195,6 +219,13 @@ public class AIController : MonoBehaviour, IShootable
 				{
 					currentFire = fireRate;
 					HandleShooting();
+
+					if (bulletsToFire <= 0)
+					{
+						AssignRandomBulletsToFire();
+						PlayCautionState(cautionTimerNormal, delta, false);
+					}
+
 				}
 				else
 				{
@@ -204,6 +235,7 @@ public class AIController : MonoBehaviour, IShootable
 			}
 			else
 			{
+				initRange = false;
 				agent.updateRotation = true;
 				agent.isStopped = false;
 				HandleDetection();
@@ -211,55 +243,107 @@ public class AIController : MonoBehaviour, IShootable
 		}
 		else
 		{
+			initRange = false;
 			agent.updateRotation = true;
 			agent.isStopped = false;
 			HandleDetection();
-		}
 
-		if (agent.desiredVelocity.magnitude > 0)
+			if (agent.remainingDistance < agent.stoppingDistance)
+			{
+				HandleRotation(lastKnownDirection, delta);
+			}
+		}
+		#endregion
+
+		#region Handle animations
+		if (currentTarget != null)
 		{
-			animator.SetFloat("movement", 1, 0.1f, delta);
+			if (!inRange)
+			{
+				animator.SetFloat("movement", 1, 0.1f, delta);
+			}
+			else
+			{
+				animator.SetFloat("movement", 0);
+			}
 		}
 		else
 		{
-			animator.SetFloat("movement", 0, 0.1f, delta);
+			if (agent.desiredVelocity.magnitude > 0)
+			{
+				animator.SetFloat("movement", 1, 0.1f, delta);
+			}
+			else
+			{
+				animator.SetFloat("movement", 0, 0.1f, delta);
+			}
 		}
+		#endregion
+	}
 
+	public ParticleSystem muzzleFire;
+
+	void AssignRandomBulletsToFire()
+	{
+		bulletsToFire = Random.Range(3, 6);
+		int BulletsLeft = magBullets - timesShot;
+
+		if (bulletsToFire > BulletsLeft)
+		{
+			bulletsToFire = BulletsLeft;
+		}
 	}
 
 	void HandleLookAtTarget(float delta)
-    {
+	{
 		Vector3 dir = currentTarget.mTransform.position - mTransform.position;
+		HandleRotation(dir, delta);
+	}
+
+	void HandleRotation(Vector3 dir, float delta)
+	{
 		dir.y = 0;
 		Quaternion targetRot = Quaternion.LookRotation(dir);
 		mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
 		agent.updateRotation = false;
 	}
-	public ParticleSystem muzzleFire;
-	
+
 	void HandleShooting()
 	{
 		timesShot++;
+		bulletsToFire--;
+		muzzleFire.Play();
+		GameReferences.RaycastShoot(mTransform, weaponSpread);
+		RaycastHit hit;
+
 		if (timesShot > magBullets)
 		{
 			timesShot = 0;
+			animator.CrossFade("Reload", 0.2f);
+			animator.CrossFade("Reload_Body", 0.2f);
 		}
-		muzzleFire.Play();
-		RaycastHit hit;
 
-        if (Physics.Raycast(mTransform.position, mTransform.forward, out hit, attackDistance))
-        {
-            Controller targetController = hit.transform.GetComponentInParent<Controller>();
-            if (targetController != null)
-            {
+
+		if (Physics.Raycast(mTransform.position, mTransform.forward, out hit, attackDistance))
+		{
+			Controller targetController = hit.transform.GetComponentInParent<Controller>();
+			if (targetController != null)
+			{
 				targetController.OnHit(damageAmount);
-            }
-        }
+			}
+		}
 
-        GameReferences.RaycastShoot(mTransform, weaponSpread);
-		
+
 	}
 
+	void PlayCautionState(float timer, float delta, bool crossfadeToState = true)
+	{
+		isCaution = true;
+		cautionTimer = timer;
+		if (crossfadeToState)
+			animator.CrossFade("caution", 0.2f);
+		animator.SetFloat("movement", 0, 0.1f, delta);
+	}
 
 	bool RaycastToTarget(Controller c)
 	{
@@ -277,16 +361,16 @@ public class AIController : MonoBehaviour, IShootable
 				Controller targetController = hit.transform.GetComponentInParent<Controller>();
 				if (targetController != null)
 				{
-					if(!isAgressive || currentTarget == null)
-                    {
+					if (!isAgressive || currentTarget == null)
+					{
 						cautionTimer = cautionTimerNormal;
 						isCaution = true;
 						isAgressive = true;
 						animator.SetBool("isCaution", true);
-						animator.CrossFade("cautionAnim", .2f);
+						animator.CrossFade("caution", 0.2f);
 					}
-					currentTarget = targetController;
 
+					currentTarget = targetController;
 
 					animator.SetBool("isAggressive", true);
 					lastKnownPosition = currentTarget.transform.position;
@@ -329,7 +413,7 @@ public class AIController : MonoBehaviour, IShootable
 	{
 		//damageAmount = dmgAmt;
 		//currentHealth -= damage;
-	
+
 		// Ensure health doesn't go below zero
 		currentHealth = Mathf.Max(currentHealth, 0);
 
@@ -352,5 +436,4 @@ public class Waypoint
 	public Vector3 lookEulers;
 	public float waitTime;
 }
-
 
