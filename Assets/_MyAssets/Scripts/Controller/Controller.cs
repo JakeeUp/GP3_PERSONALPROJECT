@@ -245,14 +245,28 @@ public class Controller : MonoBehaviour, IShootable
 
 	public void HandleShooting()
 	{
+		if (enemy == null)
+		{
+			Debug.LogError("Enemy is not properly initialized in Controller.");
+			return;
+		}
+
 		if (Time.realtimeSinceStartup - lastShot > inventoryManager.currentWeapon.fireRate)
 		{
 			lastShot = Time.realtimeSinceStartup;
 			inventoryManager.currentWeapon.muzzle.Play();
 
 			GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeapon.weaponSpread);
-
+			if (enemy != null)
+			{
+				
+			}
 		}
+	}
+	public void AttackEnemy(AIController enemy)
+	{
+		float damage = 20f; // Adjust the damage value as per your game's balance
+		enemy.OnHit(damage);
 	}
 
 	public void OnHit(float damage)

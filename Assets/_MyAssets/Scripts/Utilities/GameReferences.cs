@@ -23,6 +23,12 @@ public static class GameReferences
 
     public static void RaycastShoot(Transform mTransform, float spread)
     {
+        if (objectPooler == null)
+        {
+            Debug.LogError("Object pooler is not properly initialized in GameReferences.");
+            return;
+        }
+
         RaycastHit hit;
         Vector3 origin = Random.insideUnitCircle * spread;
         origin = mTransform.TransformPoint(origin);

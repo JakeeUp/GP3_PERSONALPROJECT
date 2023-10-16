@@ -2460,7 +2460,7 @@ MonoBehaviour:
   aimSpeed: 1
   mTransform: {fileID: 0}
   inventoryManager: {fileID: 0}
-  dmgNumber: 0
+  dmgNumber: 10
   isWall: 0
   isAiming: 0
   isFreeLook: 0
@@ -3336,7 +3336,7 @@ MonoBehaviour:
   fovAngle: 45
   weaponSpread: 0.3
   damageAmount: 1
-  magBullets: 40
+  magBullets: 10
   attackDistance: 10
   fovHeight: 2.59
   fireRate: 0.2

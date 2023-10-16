@@ -70,7 +70,7 @@ public class AIController : MonoBehaviour, IShootable
 		currentHealth = maxHealth;
 		controllerLayer = (1 << 6);
 		animator.applyRootMotion = false;
-
+		currentTarget = FindObjectOfType<Controller>();
 		GameReferences.damage = damageAmount;
 
 	}
@@ -411,13 +411,16 @@ public class AIController : MonoBehaviour, IShootable
 
 	public void OnHit(float dmgAmt)
 	{
-		//damageAmount = dmgAmt;
-		//currentHealth -= damage;
-
-		// Ensure health doesn't go below zero
-		currentHealth = Mathf.Max(currentHealth, 0);
-
-		// Handle other consequences of being hit
+		if (currentTarget != null) // Check if currentTarget is not null
+		{
+			currentHealth -= currentTarget.dmgNumber;
+            Debug.Log($"Enemy hit for {currentTarget.dmgNumber} HP. Current health: {currentHealth}");
+			currentHealth = Mathf.Max(currentHealth, 0);
+		}
+		else
+		{
+			Debug.LogError("Current target is null in AIController.");
+		}
 	}
 
 	public string hitFx = "blood";
