@@ -3124,7 +3124,7 @@ MonoBehaviour:
   meshRenderer: {fileID: 0}
   maxHealth: 100
   moveSpeed: 6
-  grabSpeed: 0.4
+  grabSpeed: 0.8
   proneSpeed: 1.2
   wallSpeed: 1
   rotateSpeed: 0.1

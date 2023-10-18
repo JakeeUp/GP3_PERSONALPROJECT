@@ -35,7 +35,9 @@ public class InputHandler : MonoBehaviour
 		cameraManager.fpsCameraObject.SetActive(false);
 		cameraManager.mainCamera.cullingMask = ~0;
 
-		ignoreForWall = ~(1 << 6 | 1 << 12);
+		ignoreForWall = ~(1 << 6 | 1 << 12 | 1<<13);
+
+		GameReferences.ignoreForShooting = ~(1 << 12 | 1 << 13);
 	}
 
 	private void FixedUpdate()
