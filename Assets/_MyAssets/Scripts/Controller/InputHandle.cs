@@ -8,6 +8,7 @@ public class InputHandler : MonoBehaviour
 
 	public ExecutionOrder movementOrder;
 	public Controller controller;
+
 	public CameraManager cameraManager;
 	Vector3 moveDirection;
 	public float wallDetectDis = .5f;
@@ -18,6 +19,8 @@ public class InputHandler : MonoBehaviour
 	float vertical;
 	float moveAmount;
 	bool freeLook;
+	bool grabInput;
+	float grabDeadTimer;
 	LayerMask ignoreForWall;
 
 	public enum ExecutionOrder
@@ -32,7 +35,7 @@ public class InputHandler : MonoBehaviour
 		cameraManager.fpsCameraObject.SetActive(false);
 		cameraManager.mainCamera.cullingMask = ~0;
 
-		ignoreForWall = ~(1 << 6);
+		ignoreForWall = ~(1 << 6 | 1 << 12);
 	}
 
 	private void FixedUpdate()
@@ -45,10 +48,46 @@ public class InputHandler : MonoBehaviour
 
 	private void Update()
 	{
+		float delta = Time.deltaTime;
+
 		horizontal = Input.GetAxis("Horizontal");
 		vertical = Input.GetAxis("Vertical");
 		controller.isAiming = Input.GetMouseButton(1);
 		freeLook = Input.GetKey(KeyCode.F);
+		bool rawGrabInputHold = Input.GetMouseButton(0);
+		bool rawGrabInputDown = Input.GetMouseButtonDown(0);
+		bool doubleGrab = false;
+
+		if (rawGrabInputHold)
+		{
+			grabInput = true;
+			if (grabDeadTimer > 0)
+			{
+				doubleGrab = true;
+			}
+
+			grabDeadTimer = 0;
+		}
+		else
+		{
+			grabDeadTimer += delta;
+			if (grabDeadTimer > 1)
+			{
+				grabInput = false;
+			}
+		}
+
+		controller.isInteracting = controller.animator.GetBool("isInteracting");
+
+		if (controller.isAiming)
+		{
+			grabInput = false;
+			freeLook = false;
+		}
+		if (grabInput)
+		{
+			freeLook = false;
+		}
 
 		if (freeLook)
 		{
@@ -59,7 +98,7 @@ public class InputHandler : MonoBehaviour
 				controller.isProne = false;
 				cameraManager.fpsCameraObject.SetActive(true);
 				controller.rigidbody.velocity = Vector3.zero;
-				cameraManager.mainCamera.cullingMask = ~(1 << 7);
+				cameraManager.mainCamera.cullingMask = ~(1 << 10);
 
 			}
 		}
@@ -73,8 +112,17 @@ public class InputHandler : MonoBehaviour
 			}
 		}
 
-		moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
+		if (controller.isInteracting)
+		{
+			controller.rigidbody.velocity = Vector3.zero;
+			return;
+		}
 
+		controller.HandleGrab(grabInput, doubleGrab, rawGrabInputDown);
+
+
+
+		moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
 		moveDirection = Vector3.forward * vertical;
 		moveDirection += Vector3.right * horizontal;
 		moveDirection.Normalize();
@@ -87,7 +135,6 @@ public class InputHandler : MonoBehaviour
 				moveDirection = Vector3.zero;
 		}
 
-		float delta = Time.deltaTime;
 
 		if (controller.isFreeLook)
 		{
@@ -131,6 +178,20 @@ public class InputHandler : MonoBehaviour
 
 	void HandleMovement(Vector3 moveDirection, float delta)
 	{
+		if (controller.isGrab)
+		{
+			controller.HandleGrabAnimation(moveAmount, delta);
+
+			if (moveAmount == 1)
+			{
+				controller.GrabMove(moveDirection, delta);
+				controller.HandleRotation(-moveDirection, delta);
+			}
+
+			controller.HandleEnemyPositionOnGrab();
+			return;
+		}
+
 		Vector3 origin = controller.transform.position;
 		origin.y += 1;
 

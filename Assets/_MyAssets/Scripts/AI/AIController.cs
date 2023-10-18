@@ -8,7 +8,9 @@ public class AIController : MonoBehaviour, IShootable
 {
 	NavMeshAgent agent;
 	new Rigidbody rigidbody;
-	Animator animator;
+	public Animator animator;
+
+	InventoryManager inventoryManager;
 	public float currentHealth { get; private set; }
 	public float maxHealth = 100f;
 	[Header("Waypoint Index")]
@@ -20,9 +22,12 @@ public class AIController : MonoBehaviour, IShootable
 
 	[Header("Bools")]
 	[Space(5)]
-	public bool isAgressive;
-	public bool isCaution;
+	private bool isAgressive;
+	private bool isCaution;
+	private bool isGrab;
+	public bool isDead;
 
+	
 	[Header("Wait Timer")]
 	[Space(5)]
 	float waitTimer;
@@ -45,7 +50,7 @@ public class AIController : MonoBehaviour, IShootable
 	public int magBullets = 40;
 	int bulletsToFire;
 	int timesShot;
-
+	public int timesStruggle;
 	public float DamageAmount
 	{
 		get { return damageAmount; }
@@ -59,6 +64,7 @@ public class AIController : MonoBehaviour, IShootable
 	Controller currentTarget;
 
 	LayerMask controllerLayer;
+	LayerMask ignoreForDetection;
 
 	private void Start()
 	{
@@ -68,10 +74,12 @@ public class AIController : MonoBehaviour, IShootable
 		currentWaypoint = waypoints[index];
 		mTransform = this.transform;
 		currentHealth = maxHealth;
-		controllerLayer = (1 << 6);
+		controllerLayer = (1 << 6 );
+		ignoreForDetection = ~( 1 << 12 | 1 << 13);
 		animator.applyRootMotion = false;
 		currentTarget = FindObjectOfType<Controller>();
 		GameReferences.damage = damageAmount;
+		inventoryManager = GetComponentInChildren<InventoryManager>();
 
 	}
 	private void Update()
@@ -79,9 +87,16 @@ public class AIController : MonoBehaviour, IShootable
 		float delta = Time.deltaTime;
 		if (currentHealth <= 0)
 		{
+			animator.Play("grab_death");
+			this.enabled = false;
 			Debug.Log("Enemy Dead");
+			isDead = true;
 		}
-
+		if(isGrab)
+        {
+			//agent.isStopped = true;
+			return;
+        }
 
 		if (animator.GetBool("isInteracting"))
 		{
@@ -110,7 +125,11 @@ public class AIController : MonoBehaviour, IShootable
 				}
 				else
 				{
-					HandleLookAtTarget(delta);
+					if (animator.GetBool("canRotate"))
+					{
+						HandleLookAtTarget(delta);
+					}
+
 					agent.isStopped = true;
 					cautionTimer -= delta;
 				}
@@ -303,6 +322,9 @@ public class AIController : MonoBehaviour, IShootable
 	void HandleRotation(Vector3 dir, float delta)
 	{
 		dir.y = 0;
+		if (dir == Vector3.zero)
+			dir = mTransform.forward;
+
 		Quaternion targetRot = Quaternion.LookRotation(dir);
 		mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
 		agent.updateRotation = false;
@@ -312,8 +334,9 @@ public class AIController : MonoBehaviour, IShootable
 	{
 		timesShot++;
 		bulletsToFire--;
-		muzzleFire.Play();
-		GameReferences.RaycastShoot(mTransform, weaponSpread);
+		//muzzleFire.Play();
+		GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeaponHook);
+		inventoryManager.currentWeaponHook.Shoot();
 		RaycastHit hit;
 
 		if (timesShot > magBullets)
@@ -343,6 +366,7 @@ public class AIController : MonoBehaviour, IShootable
 		if (crossfadeToState)
 			animator.CrossFade("caution", 0.2f);
 		animator.SetFloat("movement", 0, 0.1f, delta);
+		animator.SetBool("isCaution", true);
 	}
 
 	bool RaycastToTarget(Controller c)
@@ -356,7 +380,7 @@ public class AIController : MonoBehaviour, IShootable
 			o.y += 1;
 
 			Debug.DrawRay(o, dir * 50, Color.red);
-			if (Physics.Raycast(o, dir, out RaycastHit hit, 100))
+			if (Physics.Raycast(o, dir, out RaycastHit hit, 100, ignoreForDetection))
 			{
 				Controller targetController = hit.transform.GetComponentInParent<Controller>();
 				if (targetController != null)
@@ -429,6 +453,32 @@ public class AIController : MonoBehaviour, IShootable
 	{
 		return hitFx;
 	}
+
+	public void StartGrab(Vector3 tp, Quaternion targetRotation)
+    {
+		agent.enabled = false;
+		mTransform.position = tp;
+		isGrab = true;
+		animator.Play("e_grab_start");
+		mTransform.rotation = targetRotation;
+    }
+	public void StopGrab(Controller target)
+	{
+		currentTarget = target;
+		lastKnownPosition = currentTarget.mTransform.position;
+		agent.enabled = true;
+		agent.updateRotation = true;
+		isGrab = false;
+		animator.Play("e_grab_cancel");
+		PlayCautionState(cautionTimerNormal , Time.deltaTime, false);
+	}
+	public void KillByGrab()
+	{
+		animator.Play("grab_death");
+		this.enabled = false;
+		isDead = true;
+	}
+
 }
 
 [System.Serializable]

@@ -20,6 +20,7 @@ public class Controller : MonoBehaviour, IShootable
 	[Header("Movement")]
 	[Space(5)]
 	public float moveSpeed = .4f;
+	public float grabSpeed = .4f;
 	public float proneSpeed = .4f;
 	public float wallSpeed = .4f;
 	public float rotateSpeed = .2f;
@@ -33,7 +34,7 @@ public class Controller : MonoBehaviour, IShootable
 	public Transform mTransform;
 	[HideInInspector]
 	public InventoryManager inventoryManager;
-	Animator animator;
+	public Animator animator;
 	public float dmgNumber;
 
 	[Header("Bools")]
@@ -41,6 +42,8 @@ public class Controller : MonoBehaviour, IShootable
 	public bool isWall;
 	public bool isAiming;
 	public bool isFreeLook;
+	public bool isGrab;
+	public bool isInteracting;
 	public bool isCrouch
 	{
 		get
@@ -57,6 +60,8 @@ public class Controller : MonoBehaviour, IShootable
 	public bool isProne;
 	public float enemyDamage;
 	public AIController enemy;
+	AIController currentGrabbed;
+	
 
 	private void Start()
 	{
@@ -158,6 +163,10 @@ public class Controller : MonoBehaviour, IShootable
 		wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPos, delta / 0.2f);
 
 	}
+	public void GrabMove(Vector3 moveDirection, float delta)
+	{
+		rigidbody.velocity = moveDirection * grabSpeed;
+	}
 
 	public void Move(Vector3 moveDirection, float delta)
 	{
@@ -225,7 +234,8 @@ public class Controller : MonoBehaviour, IShootable
 		animator.SetBool("isWall", isWall);
 		animator.SetBool("isAiming", isAiming);
 		animator.SetBool("isProne", isProne);
-		inventoryManager.currentWeapon.model.SetActive(isAiming);
+		inventoryManager.currentWeaponHook.gameObject.SetActive(isAiming);
+		//inventoryManager.currentWeapon.model.SetActive(isAiming);
 	}
 
 	public void HandleMovementAnimations(float moveAmount, float delta)
@@ -254,15 +264,116 @@ public class Controller : MonoBehaviour, IShootable
 		if (Time.realtimeSinceStartup - lastShot > inventoryManager.currentWeapon.fireRate)
 		{
 			lastShot = Time.realtimeSinceStartup;
-			inventoryManager.currentWeapon.muzzle.Play();
+			inventoryManager.currentWeaponHook.Shoot();
 
-			GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeapon.weaponSpread);
+			GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeaponHook);
 			if (enemy != null)
 			{
 				
 			}
 		}
 	}
+	public float grabOffset;
+	public float grabDistance = 1;
+
+
+
+	public void HandleGrab(bool isHolding, bool doubleGrab, bool isTrigger)
+	{
+		if (currentGrabbed != null)
+		{
+			if (doubleGrab && !isInteracting)
+			{
+				Debug.Log("struggle");
+				animator.Play("p_grab_struggle");
+				currentGrabbed.animator.Play("e_grab_struggle");
+				currentGrabbed.timesStruggle++;
+
+				if (currentGrabbed.timesStruggle > 2)
+				{
+					isGrab = false;
+					animator.Play("p_grab_finish");
+					currentGrabbed.KillByGrab();
+					currentGrabbed = null;
+					isHolding = false;
+					return;
+				}
+			}
+		}
+
+		if (isHolding)
+		{
+			if (currentGrabbed == null && isTrigger)
+			{
+				Vector3 origin = mTransform.position;
+				origin.y += 1.5f;
+				RaycastHit hit;
+				Debug.DrawRay(origin, mTransform.forward * grabDistance, Color.blue, 1, false);
+				rigidbody.velocity = Vector3.zero;
+
+				if (Physics.SphereCast(origin, 0.25f, mTransform.forward, out hit, grabDistance))
+				{
+					AIController aIController = hit.transform.GetComponentInParent<AIController>();
+
+					if (aIController != null)
+					{
+						if (aIController.isDead == false)
+						{
+							Vector3 tp = mTransform.forward * grabOffset;
+							tp += mTransform.position;
+							aIController.StartGrab(tp, mTransform.rotation);
+							animator.Play("p_grab_start");
+							//animator.SetFloat("Movement", 0);
+							isGrab = true;
+							currentGrabbed = aIController;
+						}
+					}
+					else
+					{
+						animator.Play("p_grab_empty");
+					}
+				}
+				else
+				{
+					animator.Play("p_grab_empty");
+				}
+			}
+			else
+			{
+
+			}
+		}
+		else
+		{
+			if (currentGrabbed != null)
+			{
+				isGrab = false;
+				animator.Play("p_grab_cancel");
+				currentGrabbed.StopGrab(this);
+				currentGrabbed = null;
+			}
+		}
+	}
+
+	public void HandleEnemyPositionOnGrab()
+	{
+		Vector3 tp = mTransform.forward * grabOffset;
+		tp += mTransform.position;
+		currentGrabbed.transform.position = tp;
+		currentGrabbed.transform.rotation = mTransform.rotation;
+	}
+	public void HandleGrabAnimation(float moveAmount, float delta)
+	{
+		float m = moveAmount;
+		//if (moveAmount > 0)
+		//{
+		//	m = 1;
+		//}
+
+		animator.SetFloat("movement", m, 0.1f, delta);
+		currentGrabbed.animator.SetFloat("movement", m, 0.1f, delta);
+	}
+
 	public void AttackEnemy(AIController enemy)
 	{
 		float damage = 20f; // Adjust the damage value as per your game's balance
