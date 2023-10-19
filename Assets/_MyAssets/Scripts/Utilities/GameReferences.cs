@@ -5,6 +5,7 @@ using UnityEngine;
 public static class GameReferences
 {
     public static LayerMask ignoreForShooting;
+    public static LayerMask controllersLayer;
 	static ObjectPooler _objectPooler;
     public static float damage;
 	public static ObjectPooler objectPooler

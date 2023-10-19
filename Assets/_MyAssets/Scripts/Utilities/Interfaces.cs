@@ -8,3 +8,9 @@ public interface IShootable
 	void OnHit(float damage);
 	string GetHitFx();
 }
+
+public interface IPointOfInterest
+{
+	bool OnDetect(AIController aIController);
+	Transform GetTransform();
+}

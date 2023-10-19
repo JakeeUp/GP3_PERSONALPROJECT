@@ -20,6 +20,7 @@ public class InputHandler : MonoBehaviour
 	float moveAmount;
 	bool freeLook;
 	bool grabInput;
+	bool isFPSinit;
 	float grabDeadTimer;
 	LayerMask ignoreForWall;
 
@@ -35,9 +36,9 @@ public class InputHandler : MonoBehaviour
 		cameraManager.fpsCameraObject.SetActive(false);
 		cameraManager.mainCamera.cullingMask = ~0;
 
-		ignoreForWall = ~(1 << 6 | 1 << 12 | 1<<13);
-
+		ignoreForWall = ~(1 << 9 | 1 << 12 | 1 << 13);
 		GameReferences.ignoreForShooting = ~(1 << 12 | 1 << 13);
+		GameReferences.controllersLayer = (1 << 9);
 	}
 
 	private void FixedUpdate()
@@ -59,6 +60,7 @@ public class InputHandler : MonoBehaviour
 		bool rawGrabInputHold = Input.GetMouseButton(0);
 		bool rawGrabInputDown = Input.GetMouseButtonDown(0);
 		bool doubleGrab = false;
+		bool switchWeapon = Input.GetKeyDown(KeyCode.Q);
 
 		if (rawGrabInputHold)
 		{
@@ -81,6 +83,11 @@ public class InputHandler : MonoBehaviour
 
 		controller.isInteracting = controller.animator.GetBool("isInteracting");
 
+		if (switchWeapon)
+		{
+			controller.inventoryManager.SwitchWeapon();
+		}
+
 		if (controller.isAiming)
 		{
 			grabInput = false;
@@ -90,7 +97,18 @@ public class InputHandler : MonoBehaviour
 		{
 			freeLook = false;
 		}
-
+		if (freeLook)
+		{
+			float rotationSpeed = 50f;
+			if (Input.GetKey(KeyCode.O))
+			{
+				camHolder.Rotate(Vector3.up, -rotationSpeed * Time.deltaTime, Space.Self);
+			}
+			if (Input.GetKey(KeyCode.P))
+			{
+				camHolder.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.Self);
+			}
+		}
 		if (freeLook)
 		{
 			if (controller.isFreeLook == false)
@@ -122,8 +140,24 @@ public class InputHandler : MonoBehaviour
 
 		controller.HandleGrab(grabInput, doubleGrab, rawGrabInputDown);
 
+		if (controller.isFPS)
+		{
+			if(!isFPSinit)
+            {
+				cameraManager.fpsCameraObject.SetActive(true);
+				cameraManager.mainCamera.cullingMask = ~(1 << 7);
+				isFPSinit = true;
+            }
+			moveDirection = controller.mTransform.forward * vertical;
+			//moveDirection += controller.mTransform.right * horizontal;
+			moveDirection.Normalize();
+			controller.FPSRotate(horizontal, delta);
+			controller.Move(moveDirection, delta);
 
+			return;
+		}
 
+		isFPSinit = false;
 		moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
 		moveDirection = Vector3.forward * vertical;
 		moveDirection += Vector3.right * horizontal;
@@ -136,7 +170,7 @@ public class InputHandler : MonoBehaviour
 			if (!controller.isWall)
 				moveDirection = Vector3.zero;
 		}
-
+		
 
 		if (controller.isFreeLook)
 		{
@@ -144,6 +178,11 @@ public class InputHandler : MonoBehaviour
 		}
 		else
 		{
+			if (controller.inventoryManager.currentWeaponHook == null)
+			{
+				controller.isAiming = false;
+			}
+
 			if (controller.isAiming)
 			{
 				//controller.isWall = false;
@@ -168,6 +207,7 @@ public class InputHandler : MonoBehaviour
 			}
 			else
 			{
+
 				if (movementOrder == ExecutionOrder.update)
 				{
 					HandleMovement(moveDirection, delta);

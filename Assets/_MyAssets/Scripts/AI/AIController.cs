@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 
-public class AIController : MonoBehaviour, IShootable
+public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 {
 	NavMeshAgent agent;
 	new Rigidbody rigidbody;
@@ -22,10 +22,11 @@ public class AIController : MonoBehaviour, IShootable
 
 	[Header("Bools")]
 	[Space(5)]
-	private bool isAgressive;
-	private bool isCaution;
-	private bool isGrab;
+	[SerializeField]private bool isAgressive;
+	[SerializeField] private bool isCaution;
+	[SerializeField] private bool isGrab;
 	public bool isDead;
+	public bool isSpottedDead;
 
 	
 	[Header("Wait Timer")]
@@ -39,7 +40,10 @@ public class AIController : MonoBehaviour, IShootable
 	public float normalSpeed = 2;
 	public float aggressiveSpeed = 4;
 	public float rotateSpeed = .5f;
-	public float fovRadius = 20;
+
+ 
+
+    public float fovRadius = 20;
 	public float fovAngle = 45;
 
 	[Header("Attack Attributes")]
@@ -51,6 +55,7 @@ public class AIController : MonoBehaviour, IShootable
 	int bulletsToFire;
 	int timesShot;
 	public int timesStruggle;
+	float lastCautionPlayed;
 	public float DamageAmount
 	{
 		get { return damageAmount; }
@@ -71,15 +76,14 @@ public class AIController : MonoBehaviour, IShootable
 		agent = GetComponentInChildren<NavMeshAgent>();
 		rigidbody = GetComponentInChildren<Rigidbody>();
 		animator = GetComponentInChildren<Animator>();
+		inventoryManager = GetComponentInChildren<InventoryManager>();
 		currentWaypoint = waypoints[index];
 		mTransform = this.transform;
-		currentHealth = maxHealth;
-		controllerLayer = (1 << 6 );
-		ignoreForDetection = ~( 1 << 12 | 1 << 13);
 		animator.applyRootMotion = false;
-		currentTarget = FindObjectOfType<Controller>();
+		controllerLayer = (1 << 9 );
+		ignoreForDetection = ~( 1 << 12 | 1 << 13);
+		currentHealth = maxHealth;
 		GameReferences.damage = damageAmount;
-		inventoryManager = GetComponentInChildren<InventoryManager>();
 
 	}
 	private void Update()
@@ -92,11 +96,11 @@ public class AIController : MonoBehaviour, IShootable
 			Debug.Log("Enemy Dead");
 			isDead = true;
 		}
-		if(isGrab)
-        {
+		if (isGrab)
+		{
 			//agent.isStopped = true;
 			return;
-        }
+		}
 
 		if (animator.GetBool("isInteracting"))
 		{
@@ -105,8 +109,10 @@ public class AIController : MonoBehaviour, IShootable
 			{
 				HandleLookAtTarget(delta);
 			}
+
 			return;
 		}
+
 		if (!isAgressive)
 		{
 			agent.speed = normalSpeed;
@@ -134,32 +140,14 @@ public class AIController : MonoBehaviour, IShootable
 					cautionTimer -= delta;
 				}
 			}
+			else
 			{
 				agent.speed = aggressiveSpeed;
 				HandleAggressiveLogic(delta);
 			}
-
 		}
 	}
 
-	public float fovHeight = 1.0f;
-
-	void OnDrawGizmos()
-	{
-		Gizmos.color = Color.yellow;
-		Gizmos.DrawWireSphere(transform.position, fovRadius);
-
-
-		Vector3 startLinePosition = transform.position + Vector3.up * fovHeight;
-
-
-		Vector3 fovLine1 = Quaternion.AngleAxis(-fovAngle * 0.5f, Vector3.up) * transform.forward * fovRadius;
-		Vector3 fovLine2 = Quaternion.AngleAxis(fovAngle * 0.5f, Vector3.up) * transform.forward * fovRadius;
-
-		Gizmos.color = Color.red;
-		Gizmos.DrawLine(startLinePosition, startLinePosition + fovLine1);
-		Gizmos.DrawLine(startLinePosition, startLinePosition + fovLine2);
-	}
 	void HandleNormalLogic(float delta)
 	{
 		currentWaypoint = waypoints[index];
@@ -208,6 +196,9 @@ public class AIController : MonoBehaviour, IShootable
 			if (!RaycastToTarget(currentTarget))
 			{
 				lastKnownDirection = (currentTarget.mTransform.position - lastKnownPosition).normalized;
+				hasTargetRotation = true;
+				scanTime = Random.Range(minScanTime, maxScanTime);
+				aIPhase = AIPhase.scanRan;
 				currentTarget = null;
 			}
 		}
@@ -225,7 +216,7 @@ public class AIController : MonoBehaviour, IShootable
 
 				if (!initRange)
 				{
-					AssignRandomBulletsToFire();
+					AssignRanomBulletsToFire();
 					PlayCautionState(cautionTimerNormal, delta, false);
 					currentFire = fireRate;
 					initRange = true;
@@ -241,16 +232,14 @@ public class AIController : MonoBehaviour, IShootable
 
 					if (bulletsToFire <= 0)
 					{
-						AssignRandomBulletsToFire();
+						AssignRanomBulletsToFire();
 						PlayCautionState(cautionTimerNormal, delta, false);
 					}
-
 				}
 				else
 				{
 					currentFire -= delta;
 				}
-
 			}
 			else
 			{
@@ -267,9 +256,42 @@ public class AIController : MonoBehaviour, IShootable
 			agent.isStopped = false;
 			HandleDetection();
 
-			if (agent.remainingDistance < agent.stoppingDistance)
+			if (agent.remainingDistance < agent.stoppingDistance || agent.pathStatus == NavMeshPathStatus.PathInvalid || agent.pathStatus == NavMeshPathStatus.PathPartial)
 			{
-				HandleRotation(lastKnownDirection, delta);
+				if (hasTargetRotation)
+				{
+					aIPhase = AIPhase.scanRan;
+					HandleRotation(lastKnownDirection, delta);
+
+					scanTime -= delta;
+					if (scanTime < 0)
+					{
+						hasTargetRotation = false;
+
+						int ran = Random.Range(0, 100);
+						if (ran > 50)
+						{
+							aIPhase = AIPhase.searchRan;
+						}
+					}
+				}
+				else
+				{
+					switch (aIPhase)
+					{
+						case AIPhase.scanRan:
+							FindRandomLookDirection();
+							break;
+						case AIPhase.searchRan:
+							SearchRandomPosition();
+							FindRandomLookDirection();
+							break;
+						case AIPhase.searchPOI:
+							break;
+						default:
+							break;
+					}
+				}
 			}
 		}
 		#endregion
@@ -300,22 +322,54 @@ public class AIController : MonoBehaviour, IShootable
 		#endregion
 	}
 
+	void FindRandomLookDirection()
+	{
+		Vector2 r = Random.insideUnitCircle;
+		lastKnownDirection.x = r.x;
+		lastKnownDirection.z = r.y;
+
+		scanTime = Random.Range(minScanTime, maxScanTime);
+		hasTargetRotation = true;
+	}
+
+	void SearchRandomPosition()
+	{
+		Vector3 r = Random.insideUnitSphere * fovRadius;
+
+		if (NavMesh.SamplePosition(mTransform.position + r, out NavMeshHit hit, 5, NavMesh.AllAreas))
+		{
+			lastKnownPosition = hit.position;
+		}
+	}
+
 	public ParticleSystem muzzleFire;
 
-	void AssignRandomBulletsToFire()
+	public enum AIPhase
 	{
-		bulletsToFire = Random.Range(3, 6);
-		int BulletsLeft = magBullets - timesShot;
+		scanRan, searchRan, searchPOI
+	}
 
-		if (bulletsToFire > BulletsLeft)
+	public AIPhase aIPhase;
+	public float scanTime;
+	public float minScanTime = 1;
+	public float maxScanTime = 3;
+	public bool hasTargetRotation;
+
+	void AssignRanomBulletsToFire()
+	{
+		bulletsToFire = Random.Range(5, 20);
+		int bl = magBullets - timesShot;
+
+		if (bulletsToFire > bl)
 		{
-			bulletsToFire = BulletsLeft;
+			bulletsToFire = bl;
 		}
 	}
 
 	void HandleLookAtTarget(float delta)
 	{
-		Vector3 dir = currentTarget.mTransform.position - mTransform.position;
+		//Vector3 dir = currentTarget.mTransform.position - mTransform.position;
+		Vector3 dir = lastKnownPosition - mTransform.position;
 		HandleRotation(dir, delta);
 	}
 
@@ -337,7 +391,6 @@ public class AIController : MonoBehaviour, IShootable
 		//muzzleFire.Play();
 		GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeaponHook);
 		inventoryManager.currentWeaponHook.Shoot();
-		RaycastHit hit;
 
 		if (timesShot > magBullets)
 		{
@@ -345,18 +398,6 @@ public class AIController : MonoBehaviour, IShootable
 			animator.CrossFade("Reload", 0.2f);
 			animator.CrossFade("Reload_Body", 0.2f);
 		}
-
-
-		if (Physics.Raycast(mTransform.position, mTransform.forward, out hit, attackDistance))
-		{
-			Controller targetController = hit.transform.GetComponentInParent<Controller>();
-			if (targetController != null)
-			{
-				targetController.OnHit(damageAmount);
-			}
-		}
-
-
 	}
 
 	void PlayCautionState(float timer, float delta, bool crossfadeToState = true)
@@ -367,11 +408,12 @@ public class AIController : MonoBehaviour, IShootable
 			animator.CrossFade("caution", 0.2f);
 		animator.SetFloat("movement", 0, 0.1f, delta);
 		animator.SetBool("isCaution", true);
+
 	}
 
-	bool RaycastToTarget(Controller c)
+	bool RaycastToTarget(IPointOfInterest poi)
 	{
-		Vector3 dir = c.mTransform.position - mTransform.position;
+		Vector3 dir = poi.GetTransform().position - mTransform.position;
 		dir.Normalize();
 		float angle = Vector3.Angle(mTransform.forward, dir);
 		if (angle < fovAngle)
@@ -382,23 +424,11 @@ public class AIController : MonoBehaviour, IShootable
 			Debug.DrawRay(o, dir * 50, Color.red);
 			if (Physics.Raycast(o, dir, out RaycastHit hit, 100, ignoreForDetection))
 			{
-				Controller targetController = hit.transform.GetComponentInParent<Controller>();
-				if (targetController != null)
+				IPointOfInterest pointOfInterest = hit.transform.GetComponentInParent<IPointOfInterest>();
+
+				if (pointOfInterest != null)
 				{
-					if (!isAgressive || currentTarget == null)
-					{
-						cautionTimer = cautionTimerNormal;
-						isCaution = true;
-						isAgressive = true;
-						animator.SetBool("isCaution", true);
-						animator.CrossFade("caution", 0.2f);
-					}
-
-					currentTarget = targetController;
-
-					animator.SetBool("isAggressive", true);
-					lastKnownPosition = currentTarget.transform.position;
-					return true;
+					return pointOfInterest.OnDetect(this);
 				}
 				else
 				{
@@ -416,35 +446,68 @@ public class AIController : MonoBehaviour, IShootable
 		}
 	}
 
+	public void OnDetectPlayer(Controller targetPlayer)
+	{
+		SetToCautiousState();
+		currentTarget = targetPlayer;
+
+		animator.SetBool("isAggressive", true);
+		lastKnownPosition = currentTarget.transform.position;
+	}
+
+	public void SetToCautiousState()
+	{
+		if (!isAgressive)
+		{
+			cautionTimer = cautionTimerNormal;
+			isCaution = true;
+			isAgressive = true;
+			animator.SetBool("isCaution", true);
+			animator.CrossFade("caution", 0.2f);
+		}
+	}
+
+	public void UpdateLastKnowPosition(Vector3 newPosition)
+	{
+		if (currentTarget == null)
+		{
+			lastKnownPosition = newPosition;
+
+			if (!isAgressive || Time.realtimeSinceStartup - lastCautionPlayed > 4)
+			{
+				lastCautionPlayed = Time.realtimeSinceStartup;
+				cautionTimer = cautionTimerNormal;
+				isCaution = true;
+				isAgressive = true;
+				animator.SetBool("isCaution", true);
+				animator.CrossFade("caution", 0.2f);
+			}
+		}
+	}
+
 	void HandleDetection()
 	{
 		Collider[] colliders = Physics.OverlapSphere(mTransform.position, fovRadius, controllerLayer);
 
 		for (int i = 0; i < colliders.Length; i++)
 		{
-			Controller c = colliders[i].transform.GetComponentInParent<Controller>();
-			if (c != null)
+			IPointOfInterest poi = colliders[i].transform.GetComponentInParent<IPointOfInterest>();
+			if (poi != null)
 			{
-				if (RaycastToTarget(c))
+				if (poi.GetTransform() != poiTransform)
 				{
-					break;
+					if (RaycastToTarget(poi))
+					{
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	public void OnHit(float dmgAmt)
+	public void OnHit()
 	{
-		if (currentTarget != null) // Check if currentTarget is not null
-		{
-			currentHealth -= currentTarget.dmgNumber;
-            Debug.Log($"Enemy hit for {currentTarget.dmgNumber} HP. Current health: {currentHealth}");
-			currentHealth = Mathf.Max(currentHealth, 0);
-		}
-		else
-		{
-			Debug.LogError("Current target is null in AIController.");
-		}
+
 	}
 
 	public string hitFx = "blood";
@@ -455,13 +518,21 @@ public class AIController : MonoBehaviour, IShootable
 	}
 
 	public void StartGrab(Vector3 tp, Quaternion targetRotation)
-    {
+	{
 		agent.enabled = false;
 		mTransform.position = tp;
 		isGrab = true;
 		animator.Play("e_grab_start");
 		mTransform.rotation = targetRotation;
-    }
+	}
+
+	public void KillByGrab()
+	{
+		animator.Play("grab_death");
+		this.enabled = false;
+		isDead = true;
+	}
+
 	public void StopGrab(Controller target)
 	{
 		currentTarget = target;
@@ -470,16 +541,50 @@ public class AIController : MonoBehaviour, IShootable
 		agent.updateRotation = true;
 		isGrab = false;
 		animator.Play("e_grab_cancel");
-		PlayCautionState(cautionTimerNormal , Time.deltaTime, false);
-	}
-	public void KillByGrab()
-	{
-		animator.Play("grab_death");
-		this.enabled = false;
-		isDead = true;
+		PlayCautionState(cautionTimerNormal, Time.deltaTime, false);
 	}
 
+	public Transform poiTransform;
+
+	public bool OnDetect(AIController aIController)
+	{
+		if (this.isDead)
+		{
+			if (!isSpottedDead)
+			{
+				aIController.UpdateLastKnowPosition(mTransform.position);
+				isSpottedDead = true;
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public Transform GetTransform()
+	{
+		return poiTransform;
+	}
+
+	public void OnHit(float dmgAmt)
+	{
+		if (currentTarget != null) // Check if currentTarget is not null
+		{
+			currentHealth -= currentTarget.dmgNumber;
+			Debug.Log($"Enemy hit for {currentTarget.dmgNumber} HP. Current health: {currentHealth}");
+			UpdateLastKnowPosition(transform.position);
+			currentHealth = Mathf.Max(currentHealth, 0);
+		}
+		else
+		{
+			Debug.LogError("Current target is null in AIController.");
+		}
+	}
 }
+
+
 
 [System.Serializable]
 public class Waypoint
@@ -489,4 +594,3 @@ public class Waypoint
 	public Vector3 lookEulers;
 	public float waitTime;
 }
-

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class Controller : MonoBehaviour, IShootable
+public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 {
 
 	public float currentHealth { get; private set; }
@@ -44,6 +44,7 @@ public class Controller : MonoBehaviour, IShootable
 	public bool isFreeLook;
 	public bool isGrab;
 	public bool isInteracting;
+	public bool isFPS;
 	public bool isCrouch
 	{
 		get
@@ -234,7 +235,10 @@ public class Controller : MonoBehaviour, IShootable
 		animator.SetBool("isWall", isWall);
 		animator.SetBool("isAiming", isAiming);
 		animator.SetBool("isProne", isProne);
-		inventoryManager.currentWeaponHook.gameObject.SetActive(isAiming);
+		if(inventoryManager.currentWeaponHook != null)
+        {
+			inventoryManager.currentWeaponHook.gameObject.SetActive(isAiming);
+		}
 		//inventoryManager.currentWeapon.model.SetActive(isAiming);
 	}
 
@@ -406,6 +410,17 @@ public class Controller : MonoBehaviour, IShootable
     public string GetHitFx()
     {
 		return hitFx;
+    }
+
+    public bool OnDetect(AIController aIController)
+    {
+		aIController.OnDetectPlayer(this);
+		return true;
+    }
+
+	public Transform GetTransform()
+    {
+		return mTransform;
     }
 }
 
