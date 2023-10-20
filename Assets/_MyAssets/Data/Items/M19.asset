@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: M19
   m_EditorClassIdentifier: 
   prefab: {fileID: 3189581096003441321, guid: a07883400cd8b6d4eb7f1a808e07f4bc, type: 3}
+  inventoryIcon: {fileID: 0}
+  iconPivotPosition: {x: 0, y: 0}
+  preFab: {fileID: 0}
   magazineAmmo: 40
-  damageValue: 20
+  damageValue: 60
   fireRate: 0.1
   weaponSpread: 0.2
   canMoveWithWeapon: 1
