@@ -9,27 +9,50 @@ public class UIManager : MonoBehaviour
 	public InventoryUI rightUI;
 
 	public GameObject inventorySlotPrefab;
-
-
 	public static UIManager singleton;
+	InventoryManager inventoryManager;
 
 	private void Awake()
 	{
 		singleton = this;
 	}
 
-	private void Start()
+	public void Init(InventoryManager inv)
 	{
-		leftUI.Init(inventorySlotPrefab);
-		rightUI.Init(inventorySlotPrefab);
+		inventoryManager = inv;
 	}
+
+	public void CreateSlotsForItemList(List<Item> l)
+	{
+		if (l.Count == 0)
+			return;
+
+		leftUI.CreateSlotsForList(l, inventorySlotPrefab);
+	}
+
+	//public bool isInInventory(Item item)
+	//{
+	//	if (inventoryManager.pickedUpItems.Contains(item))
+	//	{
+	//		return true;
+	//	}
+	//	else
+	//	{
+	//		return false;
+	//	}
+	//}
 
 	public bool Tick(float vertical, float delta, bool isLeftActive, bool isRightActive)
 	{
 		if (isLeftActive)
 		{
-			leftUI.invGameObject.SetActive(true);
-			leftUI.Tick(vertical, delta);
+			if (!leftUI.invGameObject.activeInHierarchy)
+			{
+				leftUI.OpenAllSlots();
+				leftUI.invGameObject.SetActive(true);
+			}
+
+			leftUI.Tick(vertical, delta, inventoryManager);
 			return true;
 		}
 		else
@@ -42,8 +65,13 @@ public class UIManager : MonoBehaviour
 
 		if (isRightActive)
 		{
-			rightUI.invGameObject.SetActive(true);
-			rightUI.Tick(vertical, delta);
+			if (!rightUI.invGameObject.activeInHierarchy)
+			{
+				rightUI.OpenAllSlots();
+				rightUI.invGameObject.SetActive(true);
+			}
+
+			rightUI.Tick(vertical, delta, inventoryManager);
 			return true;
 		}
 		else
@@ -64,8 +92,8 @@ public class InventoryUI
 	public RectTransform invGrid;
 	public GameObject invGameObject;
 	[System.NonSerialized]
-	List<GameObject> createdItemsLeft = new List<GameObject>();
-	GameObject currentObject;
+	List<ItemSlot> createdItems = new List<ItemSlot>();
+	ItemSlot currentObject;
 	Vector2 targetYPosition;
 	Vector2 startPosition;
 	[System.NonSerialized]
@@ -73,47 +101,74 @@ public class InventoryUI
 	[System.NonSerialized]
 	float lastChange;
 
-	public void Init(GameObject inventorySlotPrefab)
+	public void OpenAllSlots()
 	{
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < createdItems.Count; i++)
 		{
-			GameObject go = GameObject.Instantiate(inventorySlotPrefab);
-			go.transform.SetParent(invGrid);
-			createdItemsLeft.Add(go);
-			go.SetActive(true);
+			createdItems[i].gameObject.SetActive(true);
 		}
+	}
 
-		currentObject = createdItemsLeft[0];
+	public void CreateSlotsForList(List<Item> items, GameObject slotPrefab)
+	{
+		for (int i = 0; i < items.Count; i++)
+		{
+			CreateInventorySlotForItem(items[i], slotPrefab);
+		}
+	}
+
+	public void CreateInventorySlotForItem(Item item, GameObject inventorySlotPrefab)
+	{
+		GameObject go = GameObject.Instantiate(inventorySlotPrefab);
+		go.transform.SetParent(invGrid);
+		go.SetActive(true);
+
+		ItemSlot slot = go.GetComponentInChildren<ItemSlot>();
+		slot.LoadItem(item);
+		createdItems.Add(slot);
+
 		t = 1;
 	}
 
-	public void Tick(float vertical, float delta)
+	bool notPressed;
+
+	public void Tick(float vertical, float delta, InventoryManager inv)
 	{
-		if (vertical == 1 || vertical == -1)
+		if (createdItems == null || createdItems.Count == 0)
+			return;
+
+		if (Mathf.Abs(vertical) > 0.5f)
 		{
-			if (Time.realtimeSinceStartup - lastChange > 0.5f)
+			if (Time.realtimeSinceStartup - lastChange > 1 || !notPressed)
 			{
+				notPressed = true;
 				lastChange = Time.realtimeSinceStartup;
 
 				bool isDown = (vertical < 0);
-				int index = createdItemsLeft.IndexOf(currentObject);
+				int index = createdItems.IndexOf(currentObject);
 				index = (isDown) ? index - 1 : index + 1;
 				if (index < 0)
 				{
-					index = createdItemsLeft.Count - 1;
+					index = createdItems.Count - 1;
 				}
-				if (index > createdItemsLeft.Count - 1)
+				if (index > createdItems.Count - 1)
 				{
 					index = 0;
 				}
 
-				currentObject = createdItemsLeft[index];
+				currentObject = createdItems[index];
 				Vector2 position = invGrid.localPosition;
 				startPosition = position;
 				position.y = (index) * invGrid.GetComponent<GridLayoutGroup>().cellSize.y;
 				targetYPosition = position;
 				t = 0;
+
+				//inv.LoadItem(currentObject.targetItem);
 			}
+		}
+		else
+		{
+			notPressed = false;
 		}
 
 		t += delta * 2;
@@ -126,4 +181,3 @@ public class InventoryUI
 		invGrid.localPosition = targetPosition;
 	}
 }
-

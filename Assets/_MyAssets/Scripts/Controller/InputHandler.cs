@@ -28,6 +28,8 @@ public class InputHandler : MonoBehaviour
 	bool isFPSinit;
 	float grabDeadTimer;
 	LayerMask ignoreForWall;
+	PlayerControls inputActions;
+	public Transform wallCameraTarget;
 
 	public enum ExecutionOrder
 	{
@@ -36,15 +38,28 @@ public class InputHandler : MonoBehaviour
 
 	private void Start()
 	{
-
+		inputActions = new PlayerControls();
+		inputActions.Player.Movement.performed += i => moveInputDirection = i.ReadValue<Vector2>();
 		cameraManager.wallCameraObject.SetActive(false);
 		cameraManager.mainCameraObject.SetActive(true);
 		cameraManager.fpsCameraObject.SetActive(false);
 		cameraManager.mainCamera.cullingMask = ~0;
-
+		inputActions.Enable();
 		ignoreForWall = ~(1 << 9 | 1 << 12 | 1 << 13);
 		GameReferences.ignoreForShooting = ~(1 << 12 | 1 << 13);
 		GameReferences.controllersLayer = (1 << 9);
+
+
+		List<Item> l = new List<Item>();
+		//Jacob.Utilities.IconMaker.RequestIconForList(l, null);
+		l.AddRange(controller.inventoryManager.allWeapons);
+
+
+		UIManager.singleton.CreateSlotsForItemList(l);
+	}
+	private void OnDisable()
+	{
+		inputActions.Disable();
 	}
 
 	private void FixedUpdate()
@@ -58,10 +73,10 @@ public class InputHandler : MonoBehaviour
 	private void Update()
 	{
 		float delta = Time.deltaTime;
-		bool isLeftBumperPressed = Input.GetKey(KeyCode.LeftControl); // Change KeyCode as needed
-		bool isRightBumperPressed = Input.GetKey(KeyCode.LeftAlt); // Change KeyCode as needed
+		bool isLeftBumperPressed = Input.GetKey(KeyCode.LeftArrow);
+		//bool isRightBumperPressed = Input.GetKey(KeyCode.RightArrow);
 
-		bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, isLeftBumperPressed, isRightBumperPressed);
+		bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, isLeftBumperPressed, false);
 
 
 		if (isInventory)
@@ -162,8 +177,10 @@ public class InputHandler : MonoBehaviour
 				cameraManager.mainCamera.cullingMask = ~(1 << 7);
 				isFPSinit = true;
             }
-			moveDirection = controller.mTransform.forward * vertical;
+			//moveDirection = controller.mTransform.forward * vertical;
 			//moveDirection += controller.mTransform.right * horizontal;
+			moveDirection = controller.mTransform.forward * moveInputDirection.y;
+			moveDirection += controller.mTransform.right * moveInputDirection.x;
 			moveDirection.Normalize();
 			controller.FPSRotate(horizontal, delta);
 			controller.Move(moveDirection, delta);
@@ -172,9 +189,12 @@ public class InputHandler : MonoBehaviour
 		}
 
 		isFPSinit = false;
-		moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
-		moveDirection = Vector3.forward * vertical;
-		moveDirection += Vector3.right * horizontal;
+		//moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
+		//moveDirection = Vector3.forward * vertical;
+		//moveDirection += Vector3.right * horizontal;
+		moveAmount = Mathf.Clamp01(Mathf.Abs(moveInputDirection.x) + Mathf.Abs(moveInputDirection.y));
+		moveDirection = Vector3.forward * moveInputDirection.y;
+		moveDirection += Vector3.right * moveInputDirection.x;
 		moveDirection.Normalize();
 
 		if (Input.GetKeyDown(KeyCode.C))
@@ -279,6 +299,8 @@ public class InputHandler : MonoBehaviour
 
 		if (willStickToWall)
 		{
+			wallCameraTarget.transform.position = controller.transform.position;
+			wallCameraTarget.transform.rotation = Quaternion.LookRotation(wallNormal);
 			controller.isProne = false;
 			controller.isWall = true;
 			controller.WallMovement(moveDirection, wallNormal, delta, ignoreForWall);

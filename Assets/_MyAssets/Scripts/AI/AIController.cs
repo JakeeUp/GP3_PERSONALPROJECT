@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -70,6 +71,9 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 	LayerMask controllerLayer;
 	LayerMask ignoreForDetection;
+
+	public TextMeshPro emotionText;
+	public GameObject emotionObj;
 
 	private void Start()
 	{
@@ -448,6 +452,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 	public void OnDetectPlayer(Controller targetPlayer)
 	{
+		
+
 		SetToCautiousState();
 		currentTarget = targetPlayer;
 
@@ -459,6 +465,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	{
 		if (!isAgressive)
 		{
+			emotionText.text = "?!";
+			emotionObj.SetActive(true);
 			cautionTimer = cautionTimerNormal;
 			isCaution = true;
 			isAgressive = true;
@@ -524,6 +532,9 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		isGrab = true;
 		animator.Play("e_grab_start");
 		mTransform.rotation = targetRotation;
+
+		emotionText.text = "?!";
+		emotionObj.SetActive(true);
 	}
 
 	public void KillByGrab()
@@ -552,6 +563,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		{
 			if (!isSpottedDead)
 			{
+				aIController.emotionText.text = "?";
+				aIController.emotionObj.SetActive(true);
 				aIController.UpdateLastKnowPosition(mTransform.position);
 				isSpottedDead = true;
 			}

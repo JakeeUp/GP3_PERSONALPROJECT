@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -65,6 +66,7 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	AIController currentGrabbed;
 	public PoseStats standing;
 	public PoseStats crouching;
+
 	public float getWallDetectOrigin
     {
         get { if (isCrouch)
