@@ -13,6 +13,7 @@ public class InputHandler : MonoBehaviour
 	Vector3 moveDirection;
 
 	Vector2 moveInputDirection;
+	Vector2 lookInputDirection;
 
 
 	public float wallDetectDis = .5f;
@@ -57,8 +58,15 @@ public class InputHandler : MonoBehaviour
 	private void Update()
 	{
 		float delta = Time.deltaTime;
-		//UIManager.singleton.Tick(moveDirection.y);
-		return;
+		bool isLeftBumperPressed = Input.GetKey(KeyCode.LeftControl); // Change KeyCode as needed
+		bool isRightBumperPressed = Input.GetKey(KeyCode.LeftAlt); // Change KeyCode as needed
+
+		bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, isLeftBumperPressed, isRightBumperPressed);
+
+
+		if (isInventory)
+			return;
+
 		horizontal = Input.GetAxis("Horizontal");
 		vertical = Input.GetAxis("Vertical");
 		controller.isAiming = Input.GetMouseButton(1);
