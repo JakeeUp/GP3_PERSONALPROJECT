@@ -11,6 +11,10 @@ public class InputHandler : MonoBehaviour
 
 	public CameraManager cameraManager;
 	Vector3 moveDirection;
+
+	Vector2 moveInputDirection;
+
+
 	public float wallDetectDis = .5f;
 	public float wallDetectDisOnWall = 1.2f;
 	public float wallAngleThreshold = 35;
@@ -31,6 +35,7 @@ public class InputHandler : MonoBehaviour
 
 	private void Start()
 	{
+
 		cameraManager.wallCameraObject.SetActive(false);
 		cameraManager.mainCameraObject.SetActive(true);
 		cameraManager.fpsCameraObject.SetActive(false);
@@ -52,7 +57,8 @@ public class InputHandler : MonoBehaviour
 	private void Update()
 	{
 		float delta = Time.deltaTime;
-
+		//UIManager.singleton.Tick(moveDirection.y);
+		return;
 		horizontal = Input.GetAxis("Horizontal");
 		vertical = Input.GetAxis("Vertical");
 		controller.isAiming = Input.GetMouseButton(1);
@@ -167,6 +173,14 @@ public class InputHandler : MonoBehaviour
 		{
 			controller.isCrouch = !controller.isCrouch;
 
+			if(controller.isCrouch)
+            {
+				controller.UpdatePoseStats(controller.crouching);
+            }
+			else
+            {
+				controller.UpdatePoseStats(controller.standing);
+            }
 			if (!controller.isWall)
 				moveDirection = Vector3.zero;
 		}
@@ -235,7 +249,7 @@ public class InputHandler : MonoBehaviour
 		}
 
 		Vector3 origin = controller.transform.position;
-		origin.y += 1;
+		origin.y += controller.getWallDetectOrigin;
 
 
 		bool willStickToWall = false;

@@ -26,6 +26,7 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	public float rotateSpeed = .2f;
 	public float fpsRotateSpeed = .2f;
 	public float wallCheckDis = .2f;
+	
 
 	[Header("Attacking")]
 	[Space(5)]
@@ -62,7 +63,23 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	public float enemyDamage;
 	public AIController enemy;
 	AIController currentGrabbed;
+	public PoseStats standing;
+	public PoseStats crouching;
+	public float getWallDetectOrigin
+    {
+        get { if (isCrouch)
+			{
+				return crouching.wallDetectHeight;
+			}
+			else
+			{
+				return standing.wallDetectHeight;
+			}
+		}
+    }
 	
+
+	CapsuleCollider controllerCollider;
 
 	private void Start()
 	{
@@ -71,10 +88,12 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		animator = GetComponentInChildren<Animator>();
 		inventoryManager = GetComponentInParent<InventoryManager>();
 		currentHealth += maxHealth;
+		controllerCollider = GetComponent<CapsuleCollider>();
 		startWallCamPos = wallCamParent.localPosition;
 		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 		enemy = FindObjectOfType<AIController>();
-		
+
+		UpdatePoseStats(standing);
 		
 	}
     private void Update()
@@ -422,5 +441,21 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
     {
 		return mTransform;
     }
+
+	public void UpdatePoseStats(PoseStats pose)
+    {
+		controllerCollider.height = pose.colliderHeight;
+		Vector3 centerPosition = controllerCollider.center;
+		centerPosition.y = pose.colliderPosY;
+		controllerCollider.center = centerPosition;
+    }
+
+	[System.Serializable]
+	public class PoseStats
+	{
+		public float colliderHeight = 2.7f;
+		public float colliderPosY = 1.3f;
+		public float wallDetectHeight;
+	}
 }
 
