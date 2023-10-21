@@ -14,7 +14,11 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	public Transform wallCamParent;
 	public Vector3 startWallCamPos;
 	public SkinnedMeshRenderer meshRenderer;
-
+	public ControllerState controllerState;
+	public enum ControllerState
+	{
+		normal, cardboardBox, prone
+	}
 	[Header("Attributes")]
 	[Space(5)]
 	public float maxHealth = 100f;
@@ -27,7 +31,6 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	public float rotateSpeed = .2f;
 	public float fpsRotateSpeed = .2f;
 	public float wallCheckDis = .2f;
-	
 
 	[Header("Attacking")]
 	[Space(5)]
@@ -82,6 +85,11 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	
 
 	CapsuleCollider controllerCollider;
+
+	[HideInInspector]
+	public GameObject storedObject;
+	[HideInInspector]
+	public Animator boxAnimator;
 
 	private void Start()
 	{

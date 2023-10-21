@@ -13,17 +13,21 @@ public class ItemSlot : MonoBehaviour
 
 	private void OnEnable()
 	{
-		if (UIManager.singleton == null)
+		if (UIManager.singleton == null || targetItem == null)
+		{
+			Debug.LogError("UIManager or targetItem is null");
 			return;
+		}
 
-		//if (targetItem != null)
-		//{
-		//	bool isValid = UIManager.singleton.isInInventory(targetItem);
-		//	if (!isValid)
-		//	{
-		//		this.gameObject.SetActive(false);
-		//	}
-		//}
+		bool isValid = UIManager.singleton.isInInventory(targetItem);
+
+		if (targetItem != null)
+		{
+			if (!isValid)
+			{
+				this.gameObject.SetActive(false);
+			}
+		}
 		else
 		{
 			this.gameObject.SetActive(false);
@@ -50,3 +54,4 @@ public class ItemSlot : MonoBehaviour
 		img.sprite = targetItem.inventoryIcon;
 	}
 }
+

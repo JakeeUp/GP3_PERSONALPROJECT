@@ -12,14 +12,42 @@ public class UIManager : MonoBehaviour
 	public static UIManager singleton;
 	InventoryManager inventoryManager;
 
+	Controller controller;
+
 	private void Awake()
 	{
 		singleton = this;
+		Debug.Log("UIManager is initialized.");
 	}
-
-	public void Init(InventoryManager inv)
+ 
+	IEnumerator Start() // potential fix
 	{
+		yield return new WaitUntil(() => controller.inventoryManager != null);
+
+		if (controller.inventoryManager != null)
+		{
+			Debug.Log("InventoryManager is assigned.");
+			UIManager.singleton.Init(controller.inventoryManager);
+			Debug.Log("UIManager initialized with InventoryManager.");
+		}
+		else
+		{
+			Debug.LogError("Failed to initialize UIManager because InventoryManager is still null.");
+		}
+	}
+	private void Update()
+    {
+		
+	}
+    public void Init(InventoryManager inv)
+	{
+		if (inv == null)
+		{
+			Debug.LogError("InventoryManager is null during UIManager initialization.");
+			return;
+		}
 		inventoryManager = inv;
+		Debug.Log("InventoryManager initialized successfully in UIManager");
 	}
 
 	public void CreateSlotsForItemList(List<Item> l)
@@ -30,17 +58,22 @@ public class UIManager : MonoBehaviour
 		leftUI.CreateSlotsForList(l, inventorySlotPrefab);
 	}
 
-	//public bool isInInventory(Item item)
-	//{
-	//	if (inventoryManager.pickedUpItems.Contains(item))
-	//	{
-	//		return true;
-	//	}
-	//	else
-	//	{
-	//		return false;
-	//	}
-	//}
+	public bool isInInventory(Item item)
+	{
+		if (inventoryManager == null)
+		{
+			Debug.LogError("InventoryManager is null when checking inventory.");
+			return false;
+		}
+
+		if (item == null)
+		{
+			Debug.LogError("Item is null");
+			return false;
+		}
+
+		return inventoryManager.pickedUpItems.Contains(item);
+	}
 
 	public bool Tick(float vertical, float delta, bool isLeftActive, bool isRightActive)
 	{
@@ -163,7 +196,7 @@ public class InventoryUI
 				targetYPosition = position;
 				t = 0;
 
-				//inv.LoadItem(currentObject.targetItem);
+				inv.LoadItem(currentObject.targetItem);
 			}
 		}
 		else
@@ -181,3 +214,4 @@ public class InventoryUI
 		invGrid.localPosition = targetPosition;
 	}
 }
+

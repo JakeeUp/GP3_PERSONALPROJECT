@@ -49,12 +49,24 @@ public class InputHandler : MonoBehaviour
 		GameReferences.ignoreForShooting = ~(1 << 12 | 1 << 13);
 		GameReferences.controllersLayer = (1 << 9);
 
+		Debug.Log("Initializing UIManager.");
+		UIManager.singleton.Init(controller.inventoryManager);  
+		if (controller.inventoryManager == null)
+		{
+			Debug.LogError("InventoryManager is null in InputHandler.");
+		}
 
+		List<Jacob.Utilities.IIcon> l = new List<Jacob.Utilities.IIcon>();
+		l.AddRange(ResourcesManager.singleton.GetAllItems());
+
+		Jacob.Utilities.IconMaker.RequestIconForList(l, UpdateUIManagerWithItems);
+
+		//DontDestroyOnLoad(this.gameObject);
+	}
+	void UpdateUIManagerWithItems()
+	{
 		List<Item> l = new List<Item>();
-		//Jacob.Utilities.IconMaker.RequestIconForList(l, null);
-		l.AddRange(controller.inventoryManager.allWeapons);
-
-
+		l.AddRange(ResourcesManager.singleton.GetAllItems());
 		UIManager.singleton.CreateSlotsForItemList(l);
 	}
 	private void OnDisable()
@@ -74,7 +86,7 @@ public class InputHandler : MonoBehaviour
 	{
 		float delta = Time.deltaTime;
 		bool isLeftBumperPressed = Input.GetKey(KeyCode.LeftArrow);
-		//bool isRightBumperPressed = Input.GetKey(KeyCode.RightArrow);
+		bool isRightBumperPressed = Input.GetKey(KeyCode.RightArrow);
 
 		bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, isLeftBumperPressed, false);
 

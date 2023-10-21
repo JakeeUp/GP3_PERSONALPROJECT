@@ -15,25 +15,25 @@ namespace Jacob.Utilities
 			StartCoroutine(CreateIconRoutine(targetObject, asset,true,callback));
 		}
 
-		//public void CreateIconsForList(List<IIcon> l, IconMakerAsset asset, IconMaker.OnIconComplete callback)
-		//{
-		//	StartCoroutine(CreateIconsForList_Actual(l, asset,true, callback));
-		//}
+        public void CreateIconsForList(List<IIcon> l, IconMakerAsset asset, IconMaker.OnIconComplete callback)
+        {
+            StartCoroutine(CreateIconsForList_Actual(l, asset, true, callback));
+        }
 
-		//IEnumerator CreateIconsForList_Actual(List<IIcon> l, IconMakerAsset asset,bool clearReference = true, IconMaker.OnIconComplete callback)
-		//{
-		//	int index = l.Count;
+        IEnumerator CreateIconsForList_Actual(List<IIcon> l, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback = null )
+        {
+            int index = l.Count;
 
-		//	while (l.Count > 0)
-		//	{
-		//		index--;
+            while (l.Count > 0)
+            {
+                index--;
 
-		//		yield return (CreateIconRoutine(l[index], asset, !(index > 0), callback));
-		//		l.Remove(l[index]);
-		//	}
-		//}
+                yield return (CreateIconRoutine(l[index], asset, !(index > 0), callback));
+                l.Remove(l[index]);
+            }
+        }
 
-		IEnumerator CreateIconRoutine(IIcon targetObject, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback = null)
+        IEnumerator CreateIconRoutine(IIcon targetObject, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback = null)
 		{
 			GameObject go = Instantiate(targetObject.GetObjectForIcon(), spawnPosition) as GameObject;
 			go.transform.localPosition = Vector3.zero;
@@ -67,15 +67,15 @@ namespace Jacob.Utilities
 
 			Destroy(go);
 
-			if (clearReference)
-            {
+			//if (clearReference)
+   //         {
 
-				Destroy(this.gameObject);
-            }
-			else
-            {
-				yield return new WaitForSeconds(1);
-            }
+			//	Destroy(this.gameObject);
+   //         }
+			//else
+   //         {
+			//	yield return new WaitForSeconds(1);
+   //         }
 		}
 	}
 
