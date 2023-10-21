@@ -17,7 +17,7 @@ namespace Jacob.Utilities
         {
 			GameObject go = Instantiate(iconMakerGameobject);
 			IconMakerActual iconMakerActual = go.GetComponentInChildren<IconMakerActual>();
-			iconMakerActual.CreateIconsForList(l, this, callback);
+			//iconMakerActual.CreateIconsForList(l, this, callback);
 		}
 
 		public void RequestIcon(IIcon targetObject, IconMaker.OnIconComplete callback = null)
