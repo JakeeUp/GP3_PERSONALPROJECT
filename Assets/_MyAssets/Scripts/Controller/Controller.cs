@@ -280,7 +280,20 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 			m = 1;
 		if (m < 0.1f)
 			m = 0;
+		switch(controllerState)
+        {
+			case ControllerState.normal:
+				animator.SetFloat("movement", m, 0.1f, delta);
+				break;
+			case ControllerState.cardboardBox:
+				boxAnimator.SetFloat("movement", m, 0.1f, delta);
+				break;
+			case ControllerState.prone:
+				break;
+			default:
+				break;
 
+        }
 		animator.SetFloat("movement", m, 0.1f, delta);
 	}
 
@@ -443,7 +456,16 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 
     public bool OnDetect(AIController aIController)
     {
-		aIController.OnDetectPlayer(this);
+		if(controllerState == ControllerState.cardboardBox)
+        {
+			if (rigidbody.velocity.sqrMagnitude > 0.1f)
+				aIController.OnDetectPlayer(this);
+			else
+				return false;
+        }
+		else
+			aIController.OnDetectPlayer(this);
+
 		return true;
     }
 

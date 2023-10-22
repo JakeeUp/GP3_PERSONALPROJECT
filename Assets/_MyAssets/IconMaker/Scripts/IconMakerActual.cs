@@ -62,21 +62,22 @@ namespace Jacob.Utilities
 			Sprite sprite = Sprite.Create(imgPng, new Rect(0, 0, imgPng.width, imgPng.height), targetObject.GetPivotPosition(), 100, 0, asset.spriteMeshType);
 			targetObject.IconCreatedCallback(sprite);
 
-			callback?.Invoke();
+			
 
 
 			Destroy(go);
 
-			//if (clearReference)
-   //         {
+            if (clearReference)
+            {
 
-			//	Destroy(this.gameObject);
-   //         }
-			//else
-   //         {
-			//	yield return new WaitForSeconds(1);
-   //         }
-		}
+                Destroy(this.gameObject);
+				callback?.Invoke();
+			}
+            else
+            {
+                yield return new WaitForSeconds(1);
+            }
+        }
 	}
 
 }
