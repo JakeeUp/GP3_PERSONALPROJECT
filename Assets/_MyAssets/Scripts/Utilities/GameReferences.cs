@@ -75,4 +75,17 @@ public static class GameReferences
         go.SetActive(true);
     }
 
+    public static void UpdateLastKnownPositionOfCloseby(Vector3 targetPosition, float radius )
+    {
+        Collider[] colliders = Physics.OverlapSphere(targetPosition, radius, GameReferences.controllersLayer);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            AIController aIController = colliders[i].transform.GetComponentInParent<AIController>();
+            if (aIController != null)
+            {
+                aIController.UpdateLastKnowPosition(targetPosition);
+            }
+        }
+    }
+
 }

@@ -57509,7 +57509,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2010430469}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15749352, y: 0.5610701, z: -0.1097423, w: 0.8052036}
+  m_LocalRotation: {x: 0.13055313, y: 0.665118, z: -0.1196993, w: 0.72542816}
   m_LocalPosition: {x: -38.233, y: 7.59, z: 4.199}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -60262,6 +60262,79 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4019197415343368, guid: e025a71961222624fbb2ad06ce0613aa, type: 3}
   m_PrefabInstance: {fileID: 1833233091}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2098107755
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4601723500476665317, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_Name
+      value: EnemyController (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8175644590007387934, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: waypoints.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8175644590007387934, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: waypoints.Array.data[0].targetPosition
+      value: 
+      objectReference: {fileID: 655893629}
+    - target: {fileID: 8175644590007387934, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: waypoints.Array.data[1].targetPosition
+      value: 
+      objectReference: {fileID: 2113669779}
+    - target: {fileID: 8175644590007387934, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: waypoints.Array.data[2].targetPosition
+      value: 
+      objectReference: {fileID: 594817174}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -21.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 17.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8523189518888276666, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7ae035a966b78cd4bb5413a5a3a95aa9, type: 3}
 --- !u!4 &2100085061 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4826366189836326, guid: f5830c53ed3413843b1c2d15963695b7, type: 3}
@@ -62052,6 +62125,7 @@ SceneRoots:
   - {fileID: 65419703}
   - {fileID: 1398315591}
   - {fileID: 7229196579209474054}
+  - {fileID: 2098107755}
   - {fileID: 1251351455}
   - {fileID: 1882205957}
   - {fileID: 1972084198}

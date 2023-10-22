@@ -34,6 +34,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	[Space(5)]
 	float waitTimer;
 	float cautionTimer;
+	public float alarmTimer;
 	public float cautionTimerNormal = .7f;
 
 	[Header("Attributes")]
@@ -81,7 +82,9 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		rigidbody = GetComponentInChildren<Rigidbody>();
 		animator = GetComponentInChildren<Animator>();
 		inventoryManager = GetComponentInChildren<InventoryManager>();
-		currentWaypoint = waypoints[index];
+		if(waypoints.Length > 0)
+			currentWaypoint = waypoints[index];
+
 		mTransform = this.transform;
 		animator.applyRootMotion = false;
 		controllerLayer = (1 << 9 );
@@ -117,6 +120,10 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 			return;
 		}
 
+		animator.SetBool("isAggressive", isAgressive);
+		animator.SetBool("isCaution", isCaution);
+
+
 		if (!isAgressive)
 		{
 			agent.speed = normalSpeed;
@@ -130,7 +137,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 				if (cautionTimer < 0)
 				{
 					isCaution = false;
-					animator.SetBool("isCaution", false);
 					agent.isStopped = false;
 				}
 				else
@@ -149,11 +155,27 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 				agent.speed = aggressiveSpeed;
 				HandleAggressiveLogic(delta);
 			}
+
+			if(alarmTimer > 0)
+            {
+				alarmTimer -= delta;
+            }
+			else
+            {
+				alarmTimer = 0;
+				isCaution = false;
+				isAgressive = false;
+				currentTarget = null;
+            }
 		}
 	}
 
 	void HandleNormalLogic(float delta)
 	{
+		if (waypoints.Length == 0)
+			return;
+
+
 		currentWaypoint = waypoints[index];
 
 		float dis = Vector3.Distance(mTransform.position, currentWaypoint.targetPosition.position);
@@ -408,11 +430,16 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	{
 		isCaution = true;
 		cautionTimer = timer;
-		if (crossfadeToState)
-			animator.CrossFade("caution", 0.2f);
-		animator.SetFloat("movement", 0, 0.1f, delta);
-		animator.SetBool("isCaution", true);
 
+		if(!isGrab)
+        {
+			if (crossfadeToState)
+				animator.CrossFade("caution", 0.2f);
+		}
+
+		
+		animator.SetFloat("movement", 0, 0.1f, delta);
+		isCaution = true;
 	}
 
 	bool RaycastToTarget(IPointOfInterest poi)
@@ -452,26 +479,32 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 	public void OnDetectPlayer(Controller targetPlayer)
 	{
-		
-
-		SetToCautiousState();
+		alarmTimer = 25;
 		currentTarget = targetPlayer;
-
-		animator.SetBool("isAggressive", true);
 		lastKnownPosition = currentTarget.transform.position;
+		SetToCautiousState();
 	}
 
-	public void SetToCautiousState()
+	public void SetToCautiousState(bool force = false)
 	{
-		if (!isAgressive)
+		if (!isAgressive || force)
 		{
 			emotionText.text = "?!";
 			emotionObj.SetActive(true);
+
+
 			cautionTimer = cautionTimerNormal;
 			isCaution = true;
 			isAgressive = true;
-			animator.SetBool("isCaution", true);
-			animator.CrossFade("caution", 0.2f);
+			alarmTimer = 25;
+
+			if(!isGrab)
+            {
+				animator.CrossFade("caution", 0.2f);
+
+			}
+			GameReferences.UpdateLastKnownPositionOfCloseby(lastKnownPosition, 15);
+
 		}
 	}
 
@@ -484,11 +517,14 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 			if (!isAgressive || Time.realtimeSinceStartup - lastCautionPlayed > 4)
 			{
 				lastCautionPlayed = Time.realtimeSinceStartup;
-				cautionTimer = cautionTimerNormal;
-				isCaution = true;
-				isAgressive = true;
-				animator.SetBool("isCaution", true);
-				animator.CrossFade("caution", 0.2f);
+				//cautionTimer = cautionTimerNormal;
+
+				SetToCautiousState();
+				//isCaution = true;
+				//alarmTimer = 25;
+				//isAgressive = true;
+				//animator.SetBool("isCaution", true);
+				//animator.CrossFade("caution", 0.2f);
 			}
 		}
 	}
@@ -535,6 +571,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 		emotionText.text = "?!";
 		emotionObj.SetActive(true);
+
+		GameReferences.UpdateLastKnownPositionOfCloseby(mTransform.position, 2);
 	}
 
 	public void KillByGrab()
