@@ -12,6 +12,9 @@ namespace Jacob.Utilities
 
 		public void CreateIcon(IIcon targetObject, IconMakerAsset asset,IconMaker.OnIconComplete callback)
 		{
+			if (targetObject.GetObjectForIcon() == null)
+				return;
+
 			StartCoroutine(CreateIconRoutine(targetObject, asset,true,callback));
 		}
 
@@ -27,14 +30,18 @@ namespace Jacob.Utilities
             while (l.Count > 0)
             {
                 index--;
-
-                yield return (CreateIconRoutine(l[index], asset, !(index > 0), callback));
-                l.Remove(l[index]);
+				if(l[index].GetObjectForIcon() != null)
+                {
+					yield return (CreateIconRoutine(l[index], asset, !(index > 0), callback));
+				}
+				l.Remove(l[index]);
             }
         }
 
         IEnumerator CreateIconRoutine(IIcon targetObject, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback = null)
 		{
+			
+
 			GameObject go = Instantiate(targetObject.GetObjectForIcon(), spawnPosition) as GameObject;
 			go.transform.localPosition = Vector3.zero;
 			go.transform.localRotation = Quaternion.identity;

@@ -61,7 +61,7 @@ public class InputHandler : MonoBehaviour
 
 		Jacob.Utilities.IconMaker.RequestIconForList(l, UpdateUIManagerWithItems);
 
-		//DontDestroyOnLoad(this.gameObject);
+		DontDestroyOnLoad(this.gameObject);
 	}
 	void UpdateUIManagerWithItems()
 	{
