@@ -49,20 +49,15 @@ public class InputHandler : MonoBehaviour
 		GameReferences.ignoreForShooting = ~(1 << 12 | 1 << 13);
 		GameReferences.controllersLayer = (1 << 9);
 
-		Debug.Log("Initializing UIManager.");
-		UIManager.singleton.Init(controller.inventoryManager);  
-		if (controller.inventoryManager == null)
-		{
-			Debug.LogError("InventoryManager is null in InputHandler.");
-		}
+		UIManager.singleton.Init(controller.inventoryManager);
 
 		List<Jacob.Utilities.IIcon> l = new List<Jacob.Utilities.IIcon>();
 		l.AddRange(ResourcesManager.singleton.GetAllItems());
-
 		Jacob.Utilities.IconMaker.RequestIconForList(l, UpdateUIManagerWithItems);
 
-		//DontDestroyOnLoad(this.gameObject);
+		DontDestroyOnLoad(this.gameObject);
 	}
+
 	void UpdateUIManagerWithItems()
 	{
 		List<Item> l = new List<Item>();

@@ -7,6 +7,7 @@ public class CardboardBox : PassiveItem
 {
 	public override void OnEquip(Controller controller)
 	{
+		Debug.Log("BOX ON");
 		GameObject go = Instantiate(prefab) as GameObject;
 		go.transform.parent = controller.transform;
 		go.transform.localPosition = Vector3.zero;
@@ -21,6 +22,7 @@ public class CardboardBox : PassiveItem
 
 	public override void OnUnEquip(Controller controller)
 	{
+		
 		if (controller.storedObject != null)
 		{
 			Destroy(controller.storedObject);
@@ -28,5 +30,6 @@ public class CardboardBox : PassiveItem
 
 		controller.animator.gameObject.SetActive(true);
 		controller.controllerState = Controller.ControllerState.normal;
+		Debug.Log("BOX OFF");
 	}
 }
