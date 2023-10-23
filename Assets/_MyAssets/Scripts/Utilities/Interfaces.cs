@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IShootable
 {
-	float currentHealth { get; }
+	public float currentHealth { get; }
 	void OnHit(float damage);
 	string GetHitFx();
 }

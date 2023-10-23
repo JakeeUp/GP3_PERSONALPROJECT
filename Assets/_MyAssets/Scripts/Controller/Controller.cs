@@ -8,7 +8,16 @@ using UnityEngine.UI;
 public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 {
 
-	public float currentHealth { get; private set; }
+	private float _currentHealth;
+
+	public float currentHealth
+	{
+		get { return _currentHealth; }
+		 set
+		{
+			_currentHealth = value;
+		}
+	}
 	public new Rigidbody rigidbody;
 	public float wallCamXPos = 1;
 	public Transform wallCamParent;

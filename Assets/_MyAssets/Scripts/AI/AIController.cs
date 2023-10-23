@@ -97,7 +97,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	}
 	private void Update()
 	{
-		Debug.Log($"AIController alarmTime: {alarmTimer}");
 
 		float delta = Time.deltaTime;
 		if (currentHealth <= 0)
