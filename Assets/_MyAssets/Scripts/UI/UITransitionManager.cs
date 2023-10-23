@@ -18,36 +18,49 @@ public class UITransitionManager : MonoBehaviour
             startButton.onClick.AddListener(StartGame);
         }
 
-        if (exitButton != null)  
+        if (exitButton != null)
         {
-            exitButton.onClick.AddListener(ExitGame);  
+            exitButton.onClick.AddListener(ExitGame);
         }
 
-        currentCamera.Priority++;
+        EnableCamera(currentCamera);
     }
 
     private void StartGame()
     {
         SceneManager.LoadScene("MainScene");
     }
-    
-    private void ExitGame()  
+
+    private void ExitGame()
     {
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false; 
+        UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Debug.Log("Exit Pressed");
-            Application.Quit();  
+        Debug.Log("Exit Pressed");
+        Application.Quit();
 #endif
     }
 
     public void UpdateCamera(CinemachineVirtualCamera target)
     {
-        Debug.Log("pressed");
-        currentCamera.Priority--;
+        Debug.Log("Camera Switched");
 
-        currentCamera = target;
+        DisableCamera(currentCamera); 
 
-        currentCamera.Priority++;
+        currentCamera = target; 
+
+        EnableCamera(currentCamera); 
+    }
+
+    private void EnableCamera(CinemachineVirtualCamera camera)
+    {
+        camera.gameObject.SetActive(true); 
+        Debug.Log($"{camera.name} is Enabled");
+    }
+
+    private void DisableCamera(CinemachineVirtualCamera camera)
+    {
+        camera.gameObject.SetActive(false); 
+        Debug.Log($"{camera.name} is Disabled");
     }
 }
