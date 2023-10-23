@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class Controller : MonoBehaviour, IShootable, IPointOfInterest
@@ -141,6 +142,7 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
         if (currentHealth <= 0)
         {
             Debug.Log("dead emoji");
+			SceneManager.LoadScene("DeathScene");
         }
     }
 

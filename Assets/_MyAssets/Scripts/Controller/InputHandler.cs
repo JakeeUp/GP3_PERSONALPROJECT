@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InputHandler : MonoBehaviour
 {
@@ -61,7 +62,7 @@ public class InputHandler : MonoBehaviour
 
 		Jacob.Utilities.IconMaker.RequestIconForList(l, UpdateUIManagerWithItems);
 
-		DontDestroyOnLoad(this.gameObject);
+		//DontDestroyOnLoad(this.gameObject);
 	}
 	void UpdateUIManagerWithItems()
 	{
@@ -102,6 +103,11 @@ public class InputHandler : MonoBehaviour
 		bool rawGrabInputDown = Input.GetMouseButtonDown(0);
 		bool doubleGrab = false;
 		bool switchWeapon = Input.GetKeyDown(KeyCode.Q);
+
+		if(Input.GetKey(KeyCode.Escape))
+		{
+            SceneManager.LoadScene("MainMenuScene");
+        }
 
 		if (rawGrabInputHold)
 		{
