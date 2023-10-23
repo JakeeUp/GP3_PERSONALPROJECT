@@ -51,7 +51,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 	[Header("Attack Attributes")]
 	[Space(5)]
-	private float damageAmount = 10f;
+	[SerializeField]private float damageAmount = 10f;
 	public float weaponSpread = .3f;
 	public int magBullets = 40;
 	int bulletsToFire;

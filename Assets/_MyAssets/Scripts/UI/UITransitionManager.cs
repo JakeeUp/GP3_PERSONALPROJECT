@@ -10,6 +10,7 @@ public class UITransitionManager : MonoBehaviour
     public CinemachineVirtualCamera currentCamera;
     public Button startButton;
     public Button exitButton;
+    public Button menuButton;
 
     private void Start()
     {
@@ -22,13 +23,32 @@ public class UITransitionManager : MonoBehaviour
         {
             exitButton.onClick.AddListener(ExitGame);
         }
+        if(menuButton != null)
+        {
+            menuButton.onClick.AddListener(StartMenu);
+        }
 
         EnableCamera(currentCamera);
     }
-
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Debug.Log("Exit Pressed");
+        Application.Quit();
+#endif
+        }
+    }
     private void StartGame()
     {
         SceneManager.LoadScene("MainScene");
+    }
+    private void StartMenu()
+    {
+        SceneManager.LoadScene("MainMenuScene");
     }
 
     private void ExitGame()

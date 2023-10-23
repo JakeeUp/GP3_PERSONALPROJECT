@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12b15a16c3993c449b926ba2e53763f6, type: 3}
   m_Name: CardboardBox
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1899752210556987239, guid: 15c3fffe0dec72d4e8f0643b14f41ea1, type: 3}
+  prefab: {fileID: 1899752210556987239, guid: 267ce4c6b62339f4db5850a40bed2971, type: 3}
   inventoryIcon: {fileID: 0}
   iconPivotPosition: {x: 0, y: 0}
