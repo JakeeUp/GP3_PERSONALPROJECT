@@ -35,6 +35,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	float waitTimer;
 	float cautionTimer;
 	public float alarmTimer;
+	
+
 	public float cautionTimerNormal = .7f;
 
 	[Header("Attributes")]
@@ -95,6 +97,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	}
 	private void Update()
 	{
+		Debug.Log($"AIController alarmTime: {alarmTimer}");
+
 		float delta = Time.deltaTime;
 		if (currentHealth <= 0)
 		{
