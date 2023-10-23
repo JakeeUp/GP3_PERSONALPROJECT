@@ -24895,7 +24895,7 @@ GameObject:
   - component: {fileID: 793491806}
   - component: {fileID: 793491805}
   m_Layer: 8
-  m_Name: PP FPS (1)
+  m_Name: PP FPS2 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24949,7 +24949,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sharedProfile: {fileID: 11400000, guid: 62f0d34e3d22dc448b01c9edf5a57376, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 75e761ba7627fac4e841c05fe65adaf9, type: 2}
   isGlobal: 1
   blendDistance: 0
   weight: 1

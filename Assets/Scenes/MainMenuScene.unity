@@ -2829,7 +2829,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 11
+  m_Priority: 12
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 2073422354}
   m_Follow: {fileID: 0}
@@ -3272,7 +3272,7 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 1.21
+  m_FocalLength: 1.05
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
@@ -3287,7 +3287,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 44.90309
+  field of view: 50.926693
   orthographic: 0
   orthographic size: 10
   m_Depth: -1
@@ -3313,8 +3313,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593048976}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.06115506, y: -0.58835137, z: -0.044693716, w: 0.80504984}
-  m_LocalPosition: {x: -1.5382164, y: 1.780932, z: 1.9514008}
+  m_LocalRotation: {x: 0.0059229974, y: 0.9453568, z: 0.017200712, w: -0.32552987}
+  m_LocalPosition: {x: -0.7582164, y: 1.3174756, z: -1.2965994}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8203,7 +8203,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1822238776}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.005923001, y: 0.9453568, z: 0.017200723, w: -0.32552987}
+  m_LocalRotation: {x: 0.0059229974, y: 0.9453568, z: 0.017200712, w: -0.32552987}
   m_LocalPosition: {x: -2.06, y: -2.55, z: -4.248}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8227,7 +8227,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 11
+  m_Priority: 13
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 1670442308}
   m_Follow: {fileID: 0}
@@ -8613,7 +8613,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1950975785}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.06115506, y: -0.58835137, z: -0.044693716, w: 0.80504984}
+  m_LocalRotation: {x: -0.061155032, y: -0.58835137, z: -0.0446937, w: 0.80504984}
   m_LocalPosition: {x: -2.84, y: -2.0865436, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8637,7 +8637,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 12
+  m_Priority: 11
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 206651766}
   m_Follow: {fileID: 0}
