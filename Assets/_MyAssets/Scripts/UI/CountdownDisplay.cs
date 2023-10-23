@@ -22,13 +22,11 @@ public class CountdownDisplay : MonoBehaviour
 
         if (countdownValue > 1)
         {
-            Debug.Log("TimerUI should be active");
             timerUI.SetActive(true);
             countdownTextMeshPro.text = countdownValue.ToString("F2");
         }
         else
         {
-            Debug.Log("TimerUI should be inactive");
             timerUI.SetActive(false);
         }
     }
