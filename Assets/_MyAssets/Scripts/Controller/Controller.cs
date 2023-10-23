@@ -126,7 +126,7 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	{
 		
 	}
-	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
+	private void _WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
 	{
 		float dot = Vector3.Dot(moveDirection, Vector3.forward);
 		Vector3 wallCamTargetPos = startWallCamPos;
@@ -193,12 +193,20 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPos, delta / 0.2f);
 
 	}
-	public void GrabMove(Vector3 moveDirection, float delta)
+	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
+	{
+		_WallMovement(moveDirection, normal, delta, layerMask);
+	}
+
+	private void _GrabMove(Vector3 moveDirection, float delta)
 	{
 		rigidbody.velocity = moveDirection * grabSpeed;
 	}
-
-	public void Move(Vector3 moveDirection, float delta)
+	public void GrabMove(Vector3 moveDirection, float delta)
+	{
+		_GrabMove(moveDirection, delta);
+	}
+	private void _Move(Vector3 moveDirection, float delta)
 	{
 		if (animator.GetBool("canRotate"))
 		{
@@ -211,8 +219,11 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 
 		rigidbody.velocity = moveDirection * speed;
 	}
-
-	public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
+	public void Move(Vector3 moveDirection, float delta)
+	{
+		_Move(moveDirection, delta);
+	}
+	private void _CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
 	{
 		float dot = Vector3.Dot(moveDirection, mTransform.forward);
 		HandleMovementAnimations(moveAmount, delta);
@@ -243,13 +254,22 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 			}
 		}
 	}
+	public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
+	{
+		_CrouchMovement(moveDirection, delta, moveAmount);
+	}
 
-	public void HandleRotation(Vector3 lookDir, float delta)
+	private void _HandleRotation(Vector3 lookDir, float delta)
 	{
 		if (lookDir == Vector3.zero)
 			lookDir = mTransform.forward;
 		Quaternion lookRotation = Quaternion.LookRotation(lookDir);
 		mTransform.rotation = Quaternion.Slerp(mTransform.rotation, lookRotation, delta / rotateSpeed);
+	}
+
+	public void HandleRotation(Vector3 lookDir, float delta)
+	{
+		_HandleRotation(lookDir, delta);
 	}
 
 	public void FPSRotate(float horizontal, float delta)
@@ -401,14 +421,19 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		}
 	}
 
-	public void HandleEnemyPositionOnGrab()
+	private void _HandleEnemyPositionOnGrab()
 	{
 		Vector3 tp = mTransform.forward * grabOffset;
 		tp += mTransform.position;
 		currentGrabbed.transform.position = tp;
 		currentGrabbed.transform.rotation = mTransform.rotation;
 	}
-	public void HandleGrabAnimation(float moveAmount, float delta)
+
+	public void HandleEnemyPositionOnGrab()
+	{
+		_HandleEnemyPositionOnGrab();
+	}
+	private void _HandleGrabAnimation(float moveAmount, float delta)
 	{
 		float m = moveAmount;
 		//if (moveAmount > 0)
@@ -420,7 +445,11 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		currentGrabbed.animator.SetFloat("movement", m, 0.1f, delta);
 	}
 
-	public void AttackEnemy(AIController enemy)
+	public void HandleGrabAnimation(float moveAmount, float delta)
+	{
+		_HandleGrabAnimation(moveAmount, delta);
+	}
+	private void AttackEnemy(AIController enemy)
 	{
 		float damage = 20f; // Adjust the damage value as per your game's balance
 		enemy.OnHit(damage);
@@ -441,7 +470,7 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		currentHealth = Mathf.Max(currentHealth, 0);
 		// Handle other consequences of being hit
 	}
-	public void ShowHealthWhenDeadTest()
+	private void ShowHealthWhenDeadTest()
     {
 		if(currentHealth <= 0)
         {

@@ -107,6 +107,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 			Debug.Log("Enemy Dead");
 			isDead = true;
 		}
+		
 		if (isGrab)
 		{
 			//agent.isStopped = true;

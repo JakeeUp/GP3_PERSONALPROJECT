@@ -7,19 +7,18 @@ using TMPro;
 public class CountdownDisplay : MonoBehaviour
 {
     public AIController aiController;
-    public GameObject timerUI;  // Reference to the parent GameObject of all timer UI elements
+    public GameObject timerUI;
     public TextMeshProUGUI countdownTextMeshPro;
 
     void Update()
     {
         if (aiController == null)
         {
-            Debug.LogError("AIController reference is not assigned in CountdownDisplay.");
+            timerUI.SetActive(false); // Hide UI if no AIController is assigned
             return;
         }
 
         float countdownValue = aiController.alarmTimer;
-        Debug.Log($"CountdownDisplay - Accessed Alarm Time: {countdownValue}");
 
         if (countdownValue > 1)
         {
@@ -32,5 +31,11 @@ public class CountdownDisplay : MonoBehaviour
             Debug.Log("TimerUI should be inactive");
             timerUI.SetActive(false);
         }
+    }
+
+    // Method to update the AIController reference
+    public void SetAIController(AIController newAIController)
+    {
+        aiController = newAIController;
     }
 }
