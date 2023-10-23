@@ -29,7 +29,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	public bool isDead;
 	public bool isSpottedDead;
 
-	
 	[Header("Wait Timer")]
 	[Space(5)]
 	float waitTimer;
@@ -52,9 +51,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 	[Header("Attack Attributes")]
 	[Space(5)]
+	private float damageAmount = 10f;
 	public float weaponSpread = .3f;
-	[SerializeField]
-	private float damageAmount;
 	public int magBullets = 40;
 	int bulletsToFire;
 	int timesShot;
@@ -78,8 +76,13 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	public TextMeshPro emotionText;
 	public GameObject emotionObj;
 
+    [Header("Sound Attributes")]
+    [Space(5)]
+    [SerializeField]private AudioSource hitSoundSource;
+	[SerializeField]private AudioClip[] hitSoundClips;
 	private void Start()
 	{
+		hitSoundSource = GetComponent<AudioSource>();
 		agent = GetComponentInChildren<NavMeshAgent>();
 		rigidbody = GetComponentInChildren<Rigidbody>();
 		animator = GetComponentInChildren<Animator>();
@@ -379,6 +382,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		scanRan, searchRan, searchPOI
 	}
 
+	[Header("Scan Settings")]
+	[Space(5)]
 	public AIPhase aIPhase;
 	public float scanTime;
 	public float minScanTime = 1;
@@ -628,7 +633,10 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		if (currentTarget != null) // Check if currentTarget is not null
 		{
 			currentHealth -= currentTarget.dmgNumber;
-			Debug.Log($"Enemy hit for {currentTarget.dmgNumber} HP. Current health: {currentHealth}");
+            //sound here
+            hitSoundSource.clip = hitSoundClips[index];
+            hitSoundSource.Play();
+            Debug.Log($"Enemy hit for {currentTarget.dmgNumber} HP. Current health: {currentHealth}");
 			UpdateLastKnowPosition(transform.position);
 			currentHealth = Mathf.Max(currentHealth, 0);
 		}

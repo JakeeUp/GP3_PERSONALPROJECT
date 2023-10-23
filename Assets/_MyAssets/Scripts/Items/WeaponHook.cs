@@ -10,8 +10,13 @@ public class WeaponHook : MonoBehaviour
 	public WeaponItem baseItem;
 	ParticleSystem[] particles;
 	public Transform bulletEmmiter;
+	public AudioSource gunSoundSource;
+	public AudioClip[] gunSound;
 
-	public void Init(WeaponItem weaponItem)
+    private void Start()
+    {
+    }
+    public void Init(WeaponItem weaponItem)
 	{
 		particles = GetComponentsInChildren<ParticleSystem>();
 		baseItem = weaponItem;
@@ -20,7 +25,10 @@ public class WeaponHook : MonoBehaviour
 
 	public void Shoot()
 	{
-		Debug.Log("!");
+		Debug.Log("Shoot");
+		int randomIndez = Random.Range(0,gunSound.Length);
+		gunSoundSource.clip = gunSound[randomIndez];
+		gunSoundSource.Play();	
 		if (particles != null)
 		{
 			for (int i = 0; i < particles.Length; i++)

@@ -5,43 +5,26 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class Controller : MonoBehaviour, IShootable,IPointOfInterest
+public class Controller : MonoBehaviour, IShootable, IPointOfInterest
 {
-
-	private float _currentHealth;
-
-	public float currentHealth
-	{
-		get { return _currentHealth; }
-		 set
-		{
-			_currentHealth = value;
-		}
-	}
-	public new Rigidbody rigidbody;
-	public float wallCamXPos = 1;
-	public Transform wallCamParent;
-	public Vector3 startWallCamPos;
-	public SkinnedMeshRenderer meshRenderer;
-	public ControllerState controllerState;
-	public enum ControllerState
-	{
-		normal, cardboardBox, prone
-	}
 	[Header("Attributes")]
 	[Space(5)]
 	public float maxHealth = 100f;
+	[SerializeField]private float _currentHealth;
+
+
 	[Header("Movement")]
 	[Space(5)]
-	public float moveSpeed = .4f;
-	public float grabSpeed = .4f;
-	public float proneSpeed = .4f;
-	public float wallSpeed = .4f;
-	public float rotateSpeed = .2f;
-	public float fpsRotateSpeed = .2f;
-	public float wallCheckDis = .2f;
+	[SerializeField] private float _moveSpeed = 6f;
+	[SerializeField] private float _grabSpeed = .8f;
+	[SerializeField] private float _proneSpeed = 1.2f;
+	[SerializeField] private float _wallSpeed = 1f;
+    [SerializeField] private float _rotateSpeed = .1f;
+    [SerializeField] private float _fpsRotateSpeed = .01f;
+    [SerializeField] private float _wallCheckDis = .7f;
 
-	[Header("Attacking")]
+    
+    [Header("Attacking")]
 	[Space(5)]
 	public float aimSpeed = 1;
 	[HideInInspector]
@@ -53,13 +36,14 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 
 	[Header("Bools")]
 	[Space(5)]
-	public bool isWall;
-	public bool isAiming;
-	public bool isFreeLook;
-	public bool isGrab;
-	public bool isInteracting;
-	public bool isFPS;
-	public bool isCrouch
+	[SerializeField]private bool _isWall;
+	[SerializeField]private bool _isAiming;
+	[SerializeField]private bool _isFreeLook;
+    [SerializeField]private bool _isGrab;
+	[SerializeField]private bool _isInteracting;
+	[SerializeField]private bool _isFPS;
+	[SerializeField]private bool _isProne;
+    public bool isCrouch
 	{
 		get
 		{
@@ -72,9 +56,16 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		}
 	}
 	bool _isCrouch;
-	public bool isProne;
-	public float enemyDamage;
-	public AIController enemy;
+
+    [Header("Sound")]
+    [Space(5)]
+    public AudioSource spottedSoundSource;
+    public AudioClip spottedSound;
+	public float timeSinceLastPlay;
+
+    [Header("Other")]
+    [Space(5)]
+    public AIController enemy;
 	AIController currentGrabbed;
 	public PoseStats standing;
 	public PoseStats crouching;
@@ -100,7 +91,28 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 	[HideInInspector]
 	public Animator boxAnimator;
 
-	private void Start()
+
+    public float currentHealth
+    {
+        get { return _currentHealth; }
+        set
+        {
+            _currentHealth = value;
+        }
+    }
+    public new Rigidbody rigidbody;
+    public float wallCamXPos = 1;
+    public Transform wallCamParent;
+    public Vector3 startWallCamPos;
+    public SkinnedMeshRenderer meshRenderer;
+    public enum ControllerState
+    {
+        normal, cardboardBox, prone
+    }
+    public ControllerState controllerState;
+
+   
+    private void Start()
 	{
 		mTransform = this.transform;
 		rigidbody = GetComponent<Rigidbody>();
@@ -111,31 +123,28 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		startWallCamPos = wallCamParent.localPosition;
 		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 		enemy = FindObjectOfType<AIController>();
-
+		spottedSoundSource = GetComponent<AudioSource>();
+		timeSinceLastPlay = enemy.alarmTimer;
 		UpdatePoseStats(standing);
 		
 	}
     private void Update()
     {
-		
-		//ApplyDamage(enemyDamage);
-    }
- //   public void ApplyDamage(float damage)
-	//{
-	//	//currentHealth -= damage;
-	//	//currentHealth = Mathf.Max(currentHealth, 0);
 
-	//	if (currentHealth <= 0)
-	//	{
-	//		Debug.Log("DEAD");
-	//		//HandleDeath();
-	//	}
-	//}
-	void HandleDeath()
-	{
-		
-	}
-	private void _WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
+        Death();
+
+		timeSinceLastPlay += Time.deltaTime;
+    }
+
+    private void Death()
+    {
+        if (currentHealth <= 0)
+        {
+            Debug.Log("dead emoji");
+        }
+    }
+
+    private void _WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
 	{
 		float dot = Vector3.Dot(moveDirection, Vector3.forward);
 		Vector3 wallCamTargetPos = startWallCamPos;
@@ -202,18 +211,9 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPos, delta / 0.2f);
 
 	}
-	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
-	{
-		_WallMovement(moveDirection, normal, delta, layerMask);
-	}
-
 	private void _GrabMove(Vector3 moveDirection, float delta)
 	{
 		rigidbody.velocity = moveDirection * grabSpeed;
-	}
-	public void GrabMove(Vector3 moveDirection, float delta)
-	{
-		_GrabMove(moveDirection, delta);
 	}
 	private void _Move(Vector3 moveDirection, float delta)
 	{
@@ -227,10 +227,6 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 			speed = aimSpeed;
 
 		rigidbody.velocity = moveDirection * speed;
-	}
-	public void Move(Vector3 moveDirection, float delta)
-	{
-		_Move(moveDirection, delta);
 	}
 	private void _CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
 	{
@@ -263,11 +259,6 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 			}
 		}
 	}
-	public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
-	{
-		_CrouchMovement(moveDirection, delta, moveAmount);
-	}
-
 	private void _HandleRotation(Vector3 lookDir, float delta)
 	{
 		if (lookDir == Vector3.zero)
@@ -275,13 +266,7 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		Quaternion lookRotation = Quaternion.LookRotation(lookDir);
 		mTransform.rotation = Quaternion.Slerp(mTransform.rotation, lookRotation, delta / rotateSpeed);
 	}
-
-	public void HandleRotation(Vector3 lookDir, float delta)
-	{
-		_HandleRotation(lookDir, delta);
-	}
-
-	public void FPSRotate(float horizontal, float delta)
+    public void FPSRotate(float horizontal, float delta)
 	{
 		Vector3 targetEuler = mTransform.eulerAngles;
 		targetEuler.y += horizontal * delta / fpsRotateSpeed;
@@ -300,6 +285,31 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		//inventoryManager.currentWeapon.model.SetActive(isAiming);
 	}
 
+    #region FunctionCalls
+	public void WallMovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layerMask)
+	{
+		_WallMovement(moveDirection, normal, delta, layerMask);
+	}
+
+	public void GrabMove(Vector3 moveDirection, float delta)
+	{
+		_GrabMove(moveDirection, delta);
+	}
+	public void Move(Vector3 moveDirection, float delta)
+	{
+		_Move(moveDirection, delta);
+	}
+	public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
+	{
+		_CrouchMovement(moveDirection, delta, moveAmount);
+	}
+
+
+	public void HandleRotation(Vector3 lookDir, float delta)
+	{
+		_HandleRotation(lookDir, delta);
+	}
+    #endregion
 	public void HandleMovementAnimations(float moveAmount, float delta)
 	{
 		float m = moveAmount;
@@ -479,13 +489,7 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		currentHealth = Mathf.Max(currentHealth, 0);
 		// Handle other consequences of being hit
 	}
-	private void ShowHealthWhenDeadTest()
-    {
-		if(currentHealth <= 0)
-        {
-			Debug.Log("Player Dead");
-        }
-    }
+	
 	public string hitFx = "blood";
     public string GetHitFx()
     {
@@ -494,6 +498,14 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 
     public bool OnDetect(AIController aIController)
     {
+		Debug.Log("Player Spotted");
+
+		if(timeSinceLastPlay >= enemy.alarmTimer)
+		{
+            spottedSoundSource.PlayOneShot(spottedSound);
+
+            timeSinceLastPlay = 0;
+		}
 		if(controllerState == ControllerState.cardboardBox)
         {
 			if (rigidbody.velocity.sqrMagnitude > 0.1f)
@@ -520,12 +532,34 @@ public class Controller : MonoBehaviour, IShootable,IPointOfInterest
 		controllerCollider.center = centerPosition;
     }
 
-	[System.Serializable]
+
+    #region Variable Calls
+    public float moveSpeed { get { return _moveSpeed; } set { _moveSpeed = value; } }
+    public float grabSpeed { get { return _grabSpeed; } set { _grabSpeed = value; } }
+    public float proneSpeed { get { return _proneSpeed; } set { _proneSpeed = value; } }
+    public float wallSpeed { get { return _wallSpeed; } set { _wallSpeed = value; } }
+    public float rotateSpeed { get { return _rotateSpeed; } set { _rotateSpeed = value; } }
+    public float fpsRotateSpeed { get { return _fpsRotateSpeed; } set { _fpsRotateSpeed = value; } }
+    public float wallCheckDis { get { return _wallCheckDis; } set { _wallCheckDis = value; } }
+    public bool isWall { get { return _isWall; } set { _isWall = value; } }
+    public bool isAiming { get { return _isAiming; } set { _isAiming = value; } }
+    public bool isFreeLook { get { return _isFreeLook; } set { _isFreeLook = value; } }
+    public bool isGrab { get { return _isGrab; } set { _isGrab = value; } }
+    public bool isInteracting { get { return _isInteracting; } set { _isInteracting = value; } }
+    public bool isFPS { get { return _isFPS; } set { _isFPS = value; } }
+    public bool isProne { get { return _isProne; } set { _isProne = value; } }
+
+    #endregion
+
+
+
+    [System.Serializable]
 	public class PoseStats
 	{
 		public float colliderHeight = 2.7f;
 		public float colliderPosY = 1.3f;
 		public float wallDetectHeight;
 	}
+
 }
 

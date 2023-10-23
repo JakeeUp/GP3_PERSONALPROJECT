@@ -73,16 +73,18 @@ namespace Jacob.Utilities
 
 
 			Destroy(go);
+            
 
             if (clearReference)
             {
 
                 Destroy(this.gameObject);
-				callback?.Invoke();
-			}
+                callback?.Invoke();
+
+            }
             else
             {
-                yield return new WaitForSeconds(1);
+                yield return new WaitForSeconds(.1f);
             }
         }
 	}

@@ -7,7 +7,8 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
 	public Transform rightHand;
-
+	public AudioSource pickupAudioSource;
+	public AudioClip pickupAudioClip;
 	public WeaponItem currentWeapon
 	{
 		get
@@ -29,6 +30,8 @@ public class InventoryManager : MonoBehaviour
 
 	private void Start()
 	{
+		pickupAudioSource = GetComponent<AudioSource>();
+
 		if (allWeapons.Count > 0)
 			LoadWeapon(allWeapons[0]);
 
@@ -51,7 +54,9 @@ public class InventoryManager : MonoBehaviour
 		if (item is WeaponItem)
 		{
 			pickedUpItems.Add(item);
-
+			Debug.Log("Picked Item Up");
+			pickupAudioSource.clip = pickupAudioClip;
+			pickupAudioSource.Play();
 			WeaponItem w = (WeaponItem)item;
 			if (allWeapons.Contains(w))
 			{
