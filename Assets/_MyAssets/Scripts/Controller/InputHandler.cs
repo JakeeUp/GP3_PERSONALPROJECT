@@ -86,7 +86,7 @@ public class InputHandler : MonoBehaviour
 	private void Update()
 	{
 		float delta = Time.deltaTime;
-		bool isLeftBumperPressed = Input.GetKey(KeyCode.LeftArrow);
+		bool isLeftBumperPressed = Input.GetKey(KeyCode.LeftControl);
 		bool isRightBumperPressed = Input.GetKey(KeyCode.RightArrow);
 
 		bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, isLeftBumperPressed, false);
