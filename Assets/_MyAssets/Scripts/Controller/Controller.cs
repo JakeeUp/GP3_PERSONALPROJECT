@@ -62,7 +62,7 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
     [Space(5)]
     public AudioSource spottedSoundSource;
     public AudioClip spottedSound;
-	public float timeSinceLastPlay;
+	public static float timeSinceLastPlay = 0f;
 
     [Header("Other")]
     [Space(5)]
@@ -125,9 +125,11 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
 		meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 		enemy = FindObjectOfType<AIController>();
 		spottedSoundSource = GetComponent<AudioSource>();
-		timeSinceLastPlay = enemy.alarmTimer;
 		UpdatePoseStats(standing);
-		
+
+		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.visible = false;
+
 	}
     private void Update()
     {
@@ -142,6 +144,8 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
         if (currentHealth <= 0)
         {
             Debug.Log("dead emoji");
+			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
 			SceneManager.LoadScene("DeathScene");
         }
     }
@@ -363,7 +367,7 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
 	public float grabOffset;
 	public float grabDistance = 1;
 
-
+	public AudioClip gruntSound;
 
 	public void HandleGrab(bool isHolding, bool doubleGrab, bool isTrigger)
 	{
@@ -372,6 +376,8 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
 			if (doubleGrab && !isInteracting)
 			{
 				Debug.Log("struggle");
+				spottedSoundSource.clip = gruntSound;
+				spottedSoundSource.PlayOneShot(gruntSound);
 				animator.Play("p_grab_struggle");
 				currentGrabbed.animator.Play("e_grab_struggle");
 				currentGrabbed.timesStruggle++;
@@ -497,18 +503,26 @@ public class Controller : MonoBehaviour, IShootable, IPointOfInterest
     {
 		return hitFx;
     }
+	public void DetectSound()
+    {
+		if(enemy.isAgressive == true)
+        {
+			
+				Debug.Log("Player Spotted");
+				spottedSoundSource.PlayOneShot(spottedSound);
+				timeSinceLastPlay = 0f; // Reset the timer
+			
+		}
+		else
+        {
 
+        }
+		
+	}
     public bool OnDetect(AIController aIController)
     {
-		Debug.Log("Player Spotted");
 
-		if(timeSinceLastPlay >= enemy.alarmTimer)
-		{
-            spottedSoundSource.PlayOneShot(spottedSound);
-
-            timeSinceLastPlay = 0;
-		}
-		if(controllerState == ControllerState.cardboardBox)
+		if (controllerState == ControllerState.cardboardBox)
         {
 			if (rigidbody.velocity.sqrMagnitude > 0.1f)
 				aIController.OnDetectPlayer(this);

@@ -9,7 +9,15 @@ public class CountdownDisplay : MonoBehaviour
     public AIController aiController;
     public GameObject timerUI;
     public TextMeshProUGUI countdownTextMeshPro;
+    public AudioSource audioSource;
+    public AudioClip audioClip;
+    public bool alertOn;
 
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        alertOn = false;
+    }
     void Update()
     {
         if (aiController == null)
@@ -24,10 +32,17 @@ public class CountdownDisplay : MonoBehaviour
         {
             timerUI.SetActive(true);
             countdownTextMeshPro.text = countdownValue.ToString("F2");
+
+            if (!alertOn) // If the alert has not been activated yet
+            {
+                alertOn = true; // Set alertOn to true to indicate that the alert has been activated
+                audioSource.PlayOneShot(audioClip); // Play the audio once
+            }
         }
         else
         {
             timerUI.SetActive(false);
+            alertOn = false; // Reset alertOn for the next time
         }
     }
 

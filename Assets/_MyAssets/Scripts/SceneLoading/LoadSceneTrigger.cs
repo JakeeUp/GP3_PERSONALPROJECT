@@ -10,6 +10,8 @@ public class LoadSceneTrigger : MonoBehaviour
     {
         if (other.CompareTag("GameController")) 
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             LoadScene();
         }
     }

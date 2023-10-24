@@ -106,7 +106,9 @@ public class InputHandler : MonoBehaviour
 
 		if(Input.GetKey(KeyCode.Escape))
 		{
-            SceneManager.LoadScene("MainMenuScene");
+			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
+			SceneManager.LoadScene("MainMenuScene");
         }
 
 		if (rawGrabInputHold)

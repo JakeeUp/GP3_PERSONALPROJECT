@@ -14,12 +14,18 @@ public class PickableItem : MonoBehaviour
    
     private void OnTriggerEnter(Collider other)
 	{
-		Controller c = other.GetComponentInParent<Controller>();
-		
-		if (c != null)
+		if (other.CompareTag("GameController"))
 		{
-            c.inventoryManager.PickUpItem(targetItem);
-			gameObject.SetActive(false);
+
+			Controller c = other.GetComponentInParent<Controller>();
+
+			if (c != null)
+			{
+				c.inventoryManager.PickUpItem(targetItem);
+				gameObject.SetActive(false);
+			}
 		}
+
+		
 	}
 }

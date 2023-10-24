@@ -14,10 +14,12 @@ public class pickupSound : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("GameController"))
+        {
+
             pickupSoundSource.clip = pickupSoundClip;
             pickupSoundSource.Play();
-        Destroy(this);
-        
+            Destroy(this);
+        }
     }
 }

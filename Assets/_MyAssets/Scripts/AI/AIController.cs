@@ -23,7 +23,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 	[Header("Bools")]
 	[Space(5)]
-	[SerializeField]private bool isAgressive;
+	[SerializeField]private bool _isAgressive;
+	public bool isAgressive { get { return _isAgressive; } set { _isAgressive = value; } }
 	[SerializeField] private bool isCaution;
 	[SerializeField] private bool isGrab;
 	public bool isDead;
@@ -177,7 +178,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		}
 	}
 
-	void HandleNormalLogic(float delta)
+	private void HandleNormalLogic(float delta)
 	{
 		if (waypoints.Length == 0)
 			return;
@@ -222,7 +223,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	float currentFire;
 	bool initRange;
 
-	void HandleAggressiveLogic(float delta)
+	private void HandleAggressiveLogic(float delta)
 	{
 		if (currentTarget != null)
 		{
@@ -355,7 +356,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		#endregion
 	}
 
-	void FindRandomLookDirection()
+	private void FindRandomLookDirection()
 	{
 		Vector2 r = Random.insideUnitCircle;
 		lastKnownDirection.x = r.x;
@@ -365,7 +366,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		hasTargetRotation = true;
 	}
 
-	void SearchRandomPosition()
+	private void SearchRandomPosition()
 	{
 		Vector3 r = Random.insideUnitSphere * fovRadius;
 
@@ -390,7 +391,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 	public float maxScanTime = 3;
 	public bool hasTargetRotation;
 
-	void AssignRanomBulletsToFire()
+	private void AssignRanomBulletsToFire()
 	{
 		bulletsToFire = Random.Range(5, 20);
 		int bl = magBullets - timesShot;
@@ -401,14 +402,14 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		}
 	}
 
-	void HandleLookAtTarget(float delta)
+	private void HandleLookAtTarget(float delta)
 	{
 		//Vector3 dir = currentTarget.mTransform.position - mTransform.position;
 		Vector3 dir = lastKnownPosition - mTransform.position;
 		HandleRotation(dir, delta);
 	}
 
-	void HandleRotation(Vector3 dir, float delta)
+	private void HandleRotation(Vector3 dir, float delta)
 	{
 		dir.y = 0;
 		if (dir == Vector3.zero)
@@ -419,7 +420,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		agent.updateRotation = false;
 	}
 
-	void HandleShooting()
+	private void HandleShooting()
 	{
 		timesShot++;
 		bulletsToFire--;
@@ -435,7 +436,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		}
 	}
 
-	void PlayCautionState(float timer, float delta, bool crossfadeToState = true)
+	private void PlayCautionState(float timer, float delta, bool crossfadeToState = true)
 	{
 		isCaution = true;
 		cautionTimer = timer;
@@ -450,7 +451,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 		animator.SetFloat("movement", 0, 0.1f, delta);
 		isCaution = true;
 	}
-
+	public bool spotted = false;
 	bool RaycastToTarget(IPointOfInterest poi)
 	{
 		Vector3 dir = poi.GetTransform().position - mTransform.position;
@@ -468,6 +469,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
 				if (pointOfInterest != null)
 				{
+					spotted = true;
 					return pointOfInterest.OnDetect(this);
 				}
 				else
@@ -526,19 +528,13 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 			if (!isAgressive || Time.realtimeSinceStartup - lastCautionPlayed > 4)
 			{
 				lastCautionPlayed = Time.realtimeSinceStartup;
-				//cautionTimer = cautionTimerNormal;
 
 				SetToCautiousState();
-				//isCaution = true;
-				//alarmTimer = 25;
-				//isAgressive = true;
-				//animator.SetBool("isCaution", true);
-				//animator.CrossFade("caution", 0.2f);
 			}
 		}
 	}
 
-	void HandleDetection()
+	private void HandleDetection()
 	{
 		Collider[] colliders = Physics.OverlapSphere(mTransform.position, fovRadius, controllerLayer);
 

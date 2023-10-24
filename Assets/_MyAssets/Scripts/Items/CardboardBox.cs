@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Items/Cardboard Box")]
-public class CardboardBox : PassiveItem
+public class CardboardBox : PassiveItem, Jacob.Utilities.IIcon
 {
+	
 	public override void OnEquip(Controller controller)
 	{
 		GameObject go = Instantiate(prefab) as GameObject;
@@ -19,6 +20,7 @@ public class CardboardBox : PassiveItem
 		controller.boxAnimator = go.GetComponentInChildren<Animator>();
 	}
 
+	
 	public override void OnUnEquip(Controller controller)
 	{
 		if (controller.storedObject != null)
